@@ -31,9 +31,35 @@ function generateFilmData(data) {
   return currentData;
 }
 
+function generateDates() {
+  const MAX_GAP = 14;
+  const MIN_GAP = 1;
+  const releaseDate = dayjs('1950-01-01')
+    .add(getRandomInteger(-MAX_GAP, MAX_GAP), 'year')
+    .add(getRandomInteger(-MAX_GAP, MAX_GAP), 'month')
+    .add(getRandomInteger(-MAX_GAP, MAX_GAP), 'day');
+
+  const watchingDate = dayjs()
+    .add(getRandomInteger(0, -MAX_GAP), 'year')
+    .add(getRandomInteger(0, -MAX_GAP), 'month')
+    .add(getRandomInteger(0, -MAX_GAP), 'day');
+
+  const commentDate = dayjs()
+    .add(getRandomInteger(0, 0), 'year')
+    .add(getRandomInteger(0, 0), 'month')
+    .add(getRandomInteger(0, -MAX_GAP), 'day');
+
+  return {
+    release: releaseDate.toISOString(),
+    watching: watchingDate.toISOString(),
+    comment: commentDate.toISOString(),
+  };
+}
+
 export {getRandomInteger,
   getRandomArrayElement,
   humanizeFilmDate,
   formatDuration,
   getRandomBool,
-  generateFilmData};
+  generateFilmData,
+  generateDates};

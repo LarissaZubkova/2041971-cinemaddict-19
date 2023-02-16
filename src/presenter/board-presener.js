@@ -11,9 +11,10 @@ export default class BoardPresenter {
   sectionComponent = new SectionView();
   filmListComponent = new FilmListView();
 
-  constructor({boardContainer, filmsModel}) {
+  constructor({boardContainer, filmsModel, commentsModel}) {
     this.boardContainer = boardContainer;
     this.filmsModel = filmsModel;
+    this.commentsModel = commentsModel;
   }
 
   init() {

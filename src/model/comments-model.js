@@ -1,7 +1,7 @@
-import {generateComment} from '../mock/comments.js';
+import {generateComments} from '../mock/comments.js';
 
-export default class CommentModel {
-  comment = generateComment();
+export default class ComgenerateCommentsmentsModel {
+  comment = generateComments();
 
   getComments() {
     return this.comment;

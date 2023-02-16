@@ -66,6 +66,7 @@ const FILM_COUNT = 6;
 const DateFormat = {
   RELEASE_FORMAT: 'YYYY',
   FORM_DATE_FORMAT: 'D MMMM YYYY',
+  COMMENT_DATE_FORMAT: 'YYYY/MM/DD HH:mm',
 };
 
 const Digits = {
