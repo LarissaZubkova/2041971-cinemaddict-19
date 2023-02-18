@@ -1,5 +1,5 @@
 import {getRandomArrayElement, getRandomInteger, generateDates} from '../utils.js';
-import {ACTORS, DESCRIPTIONS, EMOTION} from '../const.js';
+import {ACTORS, DESCRIPTIONS, EMOTIONS} from '../const.js';
 
 function generateComment(id) {
   return {
@@ -7,7 +7,7 @@ function generateComment(id) {
     author: getRandomArrayElement(ACTORS),
     comment: getRandomArrayElement(DESCRIPTIONS),
     date: generateDates().comment,
-    emotion: getRandomArrayElement(EMOTION),
+    emotion: getRandomArrayElement(EMOTIONS),
   };
 }
 

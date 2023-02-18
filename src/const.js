@@ -59,7 +59,7 @@ const DESCRIPTIONS = [
 
 const IMAGES_PATH = './images/posters/';
 
-const EMOTION = ['smile', 'sleeping', 'puke', 'angry'];
+const EMOTIONS = ['smile', 'sleeping', 'puke', 'angry'];
 
 const FILM_COUNT = 6;
 
@@ -82,7 +82,7 @@ export {TITLE,
   COUNTRY,
   GENRE,
   DESCRIPTIONS,
-  EMOTION,
+  EMOTIONS,
   FILM_COUNT,
   DateFormat,
   Digits};

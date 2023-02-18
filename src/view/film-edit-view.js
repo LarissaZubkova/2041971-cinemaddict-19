@@ -1,8 +1,9 @@
 import {createElement} from '../render.js';
 import {humanizeFilmDate, formatDuration} from '../utils.js';
-import {DateFormat} from '../const.js';
+import {DateFormat, EMOTIONS} from '../const.js';
 import dayjs from 'dayjs';
 import require from 'dayjs';
+import updateLocale from 'dayjs/plugin/updateLocale';
 
 const BLANK_FILM = {
   id: '',
@@ -43,7 +44,25 @@ function getControlsClassName(control) {
 function getCommentDate(date) {
   const relativeTime = require('dayjs/plugin/relativeTime');
   dayjs.extend(relativeTime);
+  dayjs.extend(updateLocale)
 
+  dayjs.updateLocale('en', {
+    relativeTime: {
+      future: "in %s",
+      past: "%s",
+      s: 'Today',
+      m: 'Today',
+      mm: 'Today',
+      h: 'Today',
+      hh: 'Today',
+      d: "a day ago",
+      dd: "%d days ago",
+      M: "a month ago",
+      MM: "%d months ago",
+      y: "a year ago",
+      yy: "%d years ago"
+    }
+  })
   const date1 = dayjs();
   const date2 = dayjs(date);
 
@@ -60,7 +79,7 @@ function generateCommentTemplate(carrentComments, commentsModel) {
 
   return commentsForFilm.map((commentsForFilm) => {
     const {emotion, comment, author, date} = commentsForFilm;
-    
+
     return `<li class="film-details__comment">
      <span class="film-details__comment-emoji">
      <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">
@@ -74,6 +93,15 @@ function generateCommentTemplate(carrentComments, commentsModel) {
     </p>
   </div>
 </li>`}).join(' ');
+}
+
+function generateEmotionTemplate(emotions) {
+  return emotions.map((emotion) => `
+    <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emotion}" value="${emotion}">
+      <label class="film-details__emoji-label" for="emoji-${emotion}">
+          <img src="./images/emoji/${emotion}.png" width="30" height="30" alt="emoji">
+      </label>
+  `).join(' ');
 }
 
 function createFilmEditTemplate(film, commentsModel) {
@@ -92,7 +120,7 @@ function createFilmEditTemplate(film, commentsModel) {
     genre,
     description} = filmInfo;
     const {watchlist, alreadyWatched, favorite} = userDetails;
-  
+
   return `<section class="film-details">
   <div class="film-details__inner">
     <div class="film-details__top-container">
@@ -179,25 +207,7 @@ function createFilmEditTemplate(film, commentsModel) {
           </label>
 
           <div class="film-details__emoji-list">
-            <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile">
-            <label class="film-details__emoji-label" for="emoji-smile">
-              <img src="./images/emoji/smile.png" width="30" height="30" alt="emoji">
-            </label>
-
-            <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping">
-            <label class="film-details__emoji-label" for="emoji-sleeping">
-              <img src="./images/emoji/sleeping.png" width="30" height="30" alt="emoji">
-            </label>
-
-            <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke">
-            <label class="film-details__emoji-label" for="emoji-puke">
-              <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji">
-            </label>
-
-            <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry">
-            <label class="film-details__emoji-label" for="emoji-angry">
-              <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji">
-            </label>
+          ${generateEmotionTemplate(EMOTIONS)}
           </div>
         </form>
       </section>
