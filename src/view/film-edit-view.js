@@ -217,24 +217,28 @@ function createFilmEditTemplate(film, commentsModel) {
 }
 
 export default class FilmEditView {
+  #element = null;
+  #film = null;
+  #comments = null;
+
   constructor({film = BLANK_FILM, comments}) {
-    this.film = film;
-    this.comments = comments;
+    this.#film = film;
+    this.#comments = comments;
   }
 
-  getTemplate() {
-    return createFilmEditTemplate(this.film, this.comments);
+  get template() {
+    return createFilmEditTemplate(this.#film, this.#comments);
   }
 
-  getElement() {
-    if(!this.element){
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if(!this.#element){
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

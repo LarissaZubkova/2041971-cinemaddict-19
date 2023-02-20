@@ -20,6 +20,6 @@ const boardPresenter = new BoardPresenter({
 
 render(new ProfileView(), siteHeaderElement);
 render(new FilterView(), siteMainElement);
-render(new FilmEditView({film: filmsModel.getFilms()[0], comments: commentsModel.getComments()}), bodyElement);
+render(new FilmEditView({film: filmsModel.films[0], comments: commentsModel.comments}), bodyElement);
 
 boardPresenter.init();

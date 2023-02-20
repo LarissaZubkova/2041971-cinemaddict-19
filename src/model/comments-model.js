@@ -1,9 +1,9 @@
 import {generateComments} from '../mock/comments.js';
 
 export default class ComgenerateCommentsmentsModel {
-  comment = generateComments();
+  #comment = generateComments();
 
-  getComments() {
-    return this.comment;
+  get comments() {
+    return this.#comment;
   }
 }
