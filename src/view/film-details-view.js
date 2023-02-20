@@ -44,25 +44,25 @@ function getControlsClassName(control) {
 function getCommentDate(date) {
   const relativeTime = require('dayjs/plugin/relativeTime');
   dayjs.extend(relativeTime);
-  dayjs.extend(updateLocale)
+  dayjs.extend(updateLocale);
 
   dayjs.updateLocale('en', {
     relativeTime: {
-      future: "in %s",
-      past: "%s",
+      future: 'in %s',
+      past: '%s',
       s: 'Today',
       m: 'Today',
       mm: 'Today',
       h: 'Today',
       hh: 'Today',
-      d: "a day ago",
-      dd: "%d days ago",
-      M: "a month ago",
-      MM: "%d months ago",
-      y: "a year ago",
-      yy: "%d years ago"
+      d: 'a day ago',
+      dd: '%d days ago',
+      M: 'a month ago',
+      MM: '%d months ago',
+      y: 'a year ago',
+      yy: '%d years ago',
     }
-  })
+  });
   const date1 = dayjs();
   const date2 = dayjs(date);
 
@@ -72,13 +72,10 @@ function getCommentDate(date) {
 }
 
 function generateCommentTemplate(carrentComments, commentsModel) {
-  console.log(carrentComments)
-  console.log(commentsModel)
   const commentsForFilm = commentsModel.filter((comment) => carrentComments.includes(comment.id));
-  console.log(commentsForFilm);
 
-  return commentsForFilm.map((commentsForFilm) => {
-    const {emotion, comment, author, date} = commentsForFilm;
+  return commentsForFilm.map((commentForFilm) => {
+    const {emotion, comment, author, date} = commentForFilm;
 
     return `<li class="film-details__comment">
      <span class="film-details__comment-emoji">
@@ -104,8 +101,7 @@ function generateEmotionTemplate(emotions) {
   `).join(' ');
 }
 
-function createFilmEditTemplate(film, commentsModel) {
-  console.log(film);
+function createFilmDetailsTemplate(film, commentsModel) {
   const {comments, filmInfo, userDetails} = film;
   const {poster,
     ageRating,
@@ -119,7 +115,7 @@ function createFilmEditTemplate(film, commentsModel) {
     duration,
     genre,
     description} = filmInfo;
-    const {watchlist, alreadyWatched, favorite} = userDetails;
+  const {watchlist, alreadyWatched, favorite} = userDetails;
 
   return `<section class="film-details">
   <div class="film-details__inner">
@@ -216,7 +212,7 @@ function createFilmEditTemplate(film, commentsModel) {
 </section>`;
 }
 
-export default class FilmEditView {
+export default class FilmDetailsView {
   #element = null;
   #film = null;
   #comments = null;
@@ -227,7 +223,7 @@ export default class FilmEditView {
   }
 
   get template() {
-    return createFilmEditTemplate(this.#film, this.#comments);
+    return createFilmDetailsTemplate(this.#film, this.#comments);
   }
 
   get element() {
