@@ -33,7 +33,7 @@ const BLANK_FILM = {
   }
 };
 
-function generateGenreTemplate(genres) {
+function createGenreTemplate(genres) {
   return genres.map((genre) => `<span class="film-details__genre">${genre}</span>`).join(' ');
 }
 
@@ -71,8 +71,8 @@ function getCommentDate(date) {
     : dayjs(date).fromNow();
 }
 
-function generateCommentTemplate(carrentComments, commentsModel) {
-  const commentsForFilm = commentsModel.filter((comment) => carrentComments.includes(comment.id));
+function createCommentTemplate(currentComments, commentsModel) {
+  const commentsForFilm = commentsModel.filter((comment) => currentComments.includes(comment.id));
 
   return commentsForFilm.map((commentForFilm) => {
     const {emotion, comment, author, date} = commentForFilm;
@@ -89,10 +89,11 @@ function generateCommentTemplate(carrentComments, commentsModel) {
         <button class="film-details__comment-delete">Delete</button>
     </p>
   </div>
-</li>`}).join(' ');
+</li>`;
+  }).join(' ');
 }
 
-function generateEmotionTemplate(emotions) {
+function createEmotionTemplate(emotions) {
   return emotions.map((emotion) => `
     <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emotion}" value="${emotion}">
       <label class="film-details__emoji-label" for="emoji-${emotion}">
@@ -170,7 +171,7 @@ function createFilmDetailsTemplate(film, commentsModel) {
             <tr class="film-details__row">
               <td class="film-details__term">Genres</td>
               <td class="film-details__cell">
-                ${generateGenreTemplate(genre)}
+                ${createGenreTemplate(genre)}
               </td>
             </tr>
           </table>
@@ -192,7 +193,7 @@ function createFilmDetailsTemplate(film, commentsModel) {
         <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
         <ul class="film-details__comments-list">
-        ${generateCommentTemplate(comments, commentsModel)}
+        ${createCommentTemplate(comments, commentsModel)}
         </ul>
 
         <form class="film-details__new-comment" action="" method="get">
@@ -203,7 +204,7 @@ function createFilmDetailsTemplate(film, commentsModel) {
           </label>
 
           <div class="film-details__emoji-list">
-          ${generateEmotionTemplate(EMOTIONS)}
+          ${createEmotionTemplate(EMOTIONS)}
           </div>
         </form>
       </section>

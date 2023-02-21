@@ -35,9 +35,7 @@ export default class BoardPresenter {
     render(this.#sectionComponent, this.#boardComponent.element);
     render(this.#filmListComponent, this.#sectionComponent.element);
 
-    for (let i = 1; i < this.#boardFilms.length; i++) {
-      this.#renderFilm(this.#boardFilms[i], this.#boardComments);
-    }
+    this.#boardFilms.forEach((film) => this.#renderFilm(film, this.#boardComments));
 
     render(new LoadMoreButtonView(), this.#sectionComponent.element);
   }

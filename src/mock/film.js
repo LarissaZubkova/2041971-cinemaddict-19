@@ -12,7 +12,6 @@ function generateDescription() {
 export function generateFilm(id) {
   const commentsGroup = Array.from({length:getRandomInteger(1, 10)}, (i, j) => getRandomInteger(j + 1));
   const comments = new Set(commentsGroup);
-  console.log(comments)
   const isWatched = getRandomBool();
 
   return {

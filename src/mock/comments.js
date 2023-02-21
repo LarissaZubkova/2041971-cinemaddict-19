@@ -1,4 +1,4 @@
-import {getRandomArrayElement, getRandomInteger, generateDates} from '../utils.js';
+import {getRandomArrayElement, generateDates} from '../utils.js';
 import {ACTORS, DESCRIPTIONS, EMOTIONS} from '../const.js';
 
 function generateComment(id) {
@@ -12,5 +12,5 @@ function generateComment(id) {
 }
 
 export function generateComments() {
-   return Array.from({length: 10}, (_item, index) => generateComment(index + 1));
+  return Array.from({length: 10}, (_item, index) => generateComment(index + 1));
 }

@@ -33,7 +33,6 @@ function generateFilmData(data) {
 
 function generateDates() {
   const MAX_GAP = 14;
-  const MIN_GAP = 1;
   const releaseDate = dayjs('1950-01-01')
     .add(getRandomInteger(-MAX_GAP, MAX_GAP), 'year')
     .add(getRandomInteger(-MAX_GAP, MAX_GAP), 'month')
@@ -56,10 +55,12 @@ function generateDates() {
   };
 }
 
-export {getRandomInteger,
+export {
+  getRandomInteger,
   getRandomArrayElement,
   humanizeFilmDate,
   formatDuration,
   getRandomBool,
   generateFilmData,
-  generateDates};
+  generateDates
+};
