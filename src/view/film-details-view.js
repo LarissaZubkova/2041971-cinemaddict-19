@@ -71,7 +71,7 @@ function getCommentDate(date) {
     : dayjs(date).fromNow();
 }
 
-function createCommentTemplate(currentComments, commentsModel) {
+function createCommentsTemplate(currentComments, commentsModel) {
   const commentsForFilm = commentsModel.filter((comment) => currentComments.includes(comment.id));
 
   return commentsForFilm.map((commentForFilm) => {
@@ -193,7 +193,7 @@ function createFilmDetailsTemplate(film, commentsModel) {
         <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
         <ul class="film-details__comments-list">
-        ${createCommentTemplate(comments, commentsModel)}
+        ${createCommentsTemplate(comments, commentsModel)}
         </ul>
 
         <form class="film-details__new-comment" action="" method="get">

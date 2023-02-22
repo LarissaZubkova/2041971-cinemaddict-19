@@ -6,6 +6,7 @@ import FilmView from '../view/film-view.js';
 import FilmDetailsView from '../view/film-details-view.js';
 import LoadMoreButtonView from '../view/load-more-button-view.js';
 import {render} from '../render.js';
+import {FILM_COUNT_PER_STEP} from '../const.js';
 export default class BoardPresenter {
   #boardContainer = null;
   #popupContainer = null;
@@ -15,9 +16,11 @@ export default class BoardPresenter {
   #boardComponent = new BoardView();
   #sectionComponent = new SectionView();
   #filmListComponent = new FilmListView();
+  #loadMoreButtonComponent = null;
 
   #boardFilms = [];
   #boardComments = [];
+  #renderFilmCount = FILM_COUNT_PER_STEP;
 
   constructor({boardContainer, popupContainer, filmsModel, commentsModel}) {
     this.#boardContainer = boardContainer;
@@ -32,13 +35,34 @@ export default class BoardPresenter {
 
     render(new SortView, this.#boardContainer);
     render(this.#boardComponent, this.#boardContainer);
+
     render(this.#sectionComponent, this.#boardComponent.element);
     render(this.#filmListComponent, this.#sectionComponent.element);
 
-    this.#boardFilms.forEach((film) => this.#renderFilm(film, this.#boardComments));
+    for (let i = 0; i < Math.min(this.#boardFilms.length, FILM_COUNT_PER_STEP); i++) {
+      this.#renderFilm(this.#boardFilms[i], this.#boardComments);
+    }
 
-    render(new LoadMoreButtonView(), this.#sectionComponent.element);
+    if (this.#boardFilms.length > FILM_COUNT_PER_STEP) {
+      this.#loadMoreButtonComponent = new LoadMoreButtonView();
+      render(this.#loadMoreButtonComponent, this.#sectionComponent.element);
+
+      this.#loadMoreButtonComponent.element.addEventListener('click', this.#loadMoreButtonClickHandler);
+    }
   }
+
+  #loadMoreButtonClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#boardFilms.slice(this.#renderFilmCount, this.#renderFilmCount + FILM_COUNT_PER_STEP)
+      .forEach((film) => this.#renderFilm(film, this.#boardComments));
+
+    this.#renderFilmCount += FILM_COUNT_PER_STEP;
+
+    if(this.#renderFilmCount >= this.#boardFilms.length) {
+      this.#loadMoreButtonComponent.element.remove();
+      this.#loadMoreButtonComponent.removeElement();
+    }
+  };
 
   #renderFilm(film, comments) {
     const filmComponent = new FilmView({film});

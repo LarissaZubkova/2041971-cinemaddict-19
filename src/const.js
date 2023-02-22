@@ -61,7 +61,7 @@ const IMAGES_PATH = './images/posters/';
 
 const EMOTIONS = ['smile', 'sleeping', 'puke', 'angry'];
 
-const FILM_COUNT = 5;
+const FILM_COUNT = 22;
 
 const DateFormat = {
   RELEASE_FORMAT: 'YYYY',
@@ -75,6 +75,8 @@ const Digits = {
   AGE_RATING: 18,
 };
 
+const FILM_COUNT_PER_STEP = 5;
+
 export {
   TITLE,
   IMAGES,
@@ -86,5 +88,6 @@ export {
   EMOTIONS,
   FILM_COUNT,
   DateFormat,
-  Digits
+  Digits,
+  FILM_COUNT_PER_STEP,
 };
