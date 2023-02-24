@@ -77,6 +77,13 @@ const Digits = {
 
 const FILM_COUNT_PER_STEP = 5;
 
+const FilterType = {
+  ALL: 'all',
+  WATCHLIST: 'watchlist',
+  HISTORY: 'history',
+  FAVORITES: 'favorites',
+};
+
 export {
   TITLE,
   IMAGES,
@@ -90,4 +97,5 @@ export {
   DateFormat,
   Digits,
   FILM_COUNT_PER_STEP,
+  FilterType,
 };
