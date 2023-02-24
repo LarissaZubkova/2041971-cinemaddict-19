@@ -1,4 +1,5 @@
-import {getRandomInteger, getRandomArrayElement, getRandomBool, generateFilmData, generateDates} from '../utils.js';
+import {getRandomInteger, getRandomArrayElement} from '../utils/common.js';
+import {getRandomBool, generateFilmData, generateDates} from '../utils/film.js';
 import {TITLE, IMAGES, IMAGES_PATH, ACTORS, COUNTRY, GENRE, DESCRIPTIONS, Digits} from '../const.js';
 
 function generateDescription() {

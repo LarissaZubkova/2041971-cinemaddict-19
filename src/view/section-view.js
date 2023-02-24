@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 function createSectionTemplate(isExtra, title) {
   return `<section class="films-list" ${isExtra ? 'films-list films-list--extra' : ''}>
@@ -6,22 +6,8 @@ function createSectionTemplate(isExtra, title) {
   </section>`;
 }
 
-export default class SectionView {
-  #element = null;
-
+export default class SectionView extends AbstractView{
   get template() {
     return createSectionTemplate();
-  }
-
-  get element() {
-    if(!this.#element){
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }

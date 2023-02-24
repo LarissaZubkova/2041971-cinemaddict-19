@@ -1,5 +1,5 @@
-import {createElement} from '../render.js';
-import {humanizeFilmDate, formatDuration} from '../utils.js';
+import AbstractView from '../framework/view/abstract-view.js';
+import {humanizeFilmDate, formatDuration} from '../utils/film.js';
 import {DateFormat, EMOTIONS} from '../const.js';
 import dayjs from 'dayjs';
 import require from 'dayjs';
@@ -213,29 +213,27 @@ function createFilmDetailsTemplate(film, commentsModel) {
 </section>`;
 }
 
-export default class FilmDetailsView {
-  #element = null;
+export default class FilmDetailsView extends AbstractView {
   #film = null;
   #comments = null;
+  #handleDetailsClose = null;
 
-  constructor({film = BLANK_FILM, comments}) {
+  constructor({film = BLANK_FILM, comments, onDetailsClose}) {
+    super();
     this.#film = film;
     this.#comments = comments;
+    this.#handleDetailsClose = onDetailsClose;
+
+    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#detailsCloseHandler);
   }
 
   get template() {
     return createFilmDetailsTemplate(this.#film, this.#comments);
   }
 
-  get element() {
-    if(!this.#element){
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
+  #detailsCloseHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleDetailsClose();
+    document.querySelector('body').classList.remove('hide-overflow');
+  };
 }

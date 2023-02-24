@@ -1,4 +1,5 @@
-import {getRandomArrayElement, generateDates} from '../utils.js';
+import {getRandomArrayElement} from '../utils/common.js';
+import {generateDates} from '../utils/film.js';
 import {ACTORS, DESCRIPTIONS, EMOTIONS} from '../const.js';
 
 function generateComment(id) {

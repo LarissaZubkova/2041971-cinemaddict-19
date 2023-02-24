@@ -1,5 +1,5 @@
-import {createElement} from '../render.js';
-import {humanizeFilmDate, formatDuration} from '../utils.js';
+import AbstractView from '../framework/view/abstract-view.js';
+import {humanizeFilmDate, formatDuration} from '../utils/film.js';
 import {DateFormat} from '../const.js';
 
 function getControlsClassName(control) {
@@ -34,27 +34,24 @@ function createFilmTemplate(film) {
 </article>`;
 }
 
-export default class FilmView {
-  #element = null;
+export default class FilmView extends AbstractView {
   #film = null;
+  #handleDetailsClick = null;
 
-  constructor({film}) {
+  constructor({film, onDetailsClick}) {
+    super();
     this.#film = film;
+    this.#handleDetailsClick = onDetailsClick;
+    this.element.querySelector('.film-card__link').addEventListener('click', this.#detailsClickHandler);
   }
 
   get template() {
     return createFilmTemplate(this.#film);
   }
 
-  get element() {
-    if(!this.#element){
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
+  #detailsClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleDetailsClick();
+    document.querySelector('body').classList.add('hide-overflow');
+  };
 }
