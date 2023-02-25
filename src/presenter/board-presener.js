@@ -1,4 +1,4 @@
-import {render, remove} from '../framework/render.js';
+import {render, remove, RenderPosition} from '../framework/render.js';
 import BoardView from '../view/board-view.js';
 import SectionView from '../view/section-view.js';
 import SortView from '../view/sort-view.js';
@@ -19,10 +19,12 @@ export default class BoardPresenter {
   #sectionComponent = new SectionView();
   #filmListComponent = new FilmListView();
   #loadMoreButtonComponent = null;
+  #sortComponent = new SortView();
+  #noFilmComponent = new EmptyListView();
 
   #boardFilms = [];
   #boardComments = [];
-  #renderFilmCount = FILM_COUNT_PER_STEP;
+  #renderedFilmCount = FILM_COUNT_PER_STEP;
 
   constructor({boardContainer, popupContainer, filmsModel, commentsModel}) {
     this.#boardContainer = boardContainer;
@@ -39,15 +41,18 @@ export default class BoardPresenter {
   }
 
   #handleLoadMoreButtonClick = () => {
-    this.#boardFilms.slice(this.#renderFilmCount, this.#renderFilmCount + FILM_COUNT_PER_STEP)
-      .forEach((film) => this.#renderFilm(film, this.#boardComments));
+    this.#renderFilms(this.#renderedFilmCount, this.#renderedFilmCount + FILM_COUNT_PER_STEP);
 
-    this.#renderFilmCount += FILM_COUNT_PER_STEP;
+    this.#renderedFilmCount += FILM_COUNT_PER_STEP;
 
-    if(this.#renderFilmCount >= this.#boardFilms.length) {
+    if(this.#renderedFilmCount >= this.#boardFilms.length) {
       remove(this.#loadMoreButtonComponent);
     }
   };
+
+  #renderSort() {
+    render(this.#sortComponent, this.#boardContainer, RenderPosition.AFTERBEGIN);
+  }
 
   #renderFilm(film, comments) {
     const escKeyDownHandler = (evt) => {
@@ -86,28 +91,41 @@ export default class BoardPresenter {
     render(filmComponent, this.#filmListComponent.element);
   }
 
-  #renderBoard() {
-    if (this.#boardFilms.length === 0) {
-      render(this.#boardComponent, this.#boardContainer);
-      render(this.#sectionComponent, this.#boardComponent.element);
-      this.#sectionComponent.element.innerHTML = '';
-      render(new EmptyListView(), this.#sectionComponent.element);
-      return;
-    }
-    render(new SortView, this.#boardContainer);
-    render(this.#boardComponent, this.#boardContainer);
-    render(this.#sectionComponent, this.#boardComponent.element);
-    render(this.#filmListComponent, this.#sectionComponent.element);
+  #renderFilms(from, to) {
+    this.#boardFilms.slice(from, to).forEach((film) => this.#renderFilm(film, this.#boardComments));
+  }
 
-    for (let i = 0; i < Math.min(this.#boardFilms.length, FILM_COUNT_PER_STEP); i++) {
-      this.#renderFilm(this.#boardFilms[i], this.#boardComments);
-    }
+  #renderNoFilms() {
+    this.#sectionComponent.element.innerHTML = '';
+    render(this.#noFilmComponent, this.#sectionComponent.element, RenderPosition.AFTERBEGIN);
+  }
+
+  #renderLoadMoreButton() {
+    this.#loadMoreButtonComponent = new LoadMoreButtonView({
+      onClick: this.#handleLoadMoreButtonClick,
+    });
+
+    render(this.#loadMoreButtonComponent, this.#sectionComponent.element);
+  }
+
+  #renderFilmList() {
+    render(this.#filmListComponent, this.#sectionComponent.element);
+    this.#renderFilms(0, Math.min(this.#boardFilms.length, FILM_COUNT_PER_STEP));
 
     if (this.#boardFilms.length > FILM_COUNT_PER_STEP) {
-      this.#loadMoreButtonComponent = new LoadMoreButtonView({
-        onClick: this.#handleLoadMoreButtonClick,
-      });
-      render(this.#loadMoreButtonComponent, this.#sectionComponent.element);
+      this.#renderLoadMoreButton();
     }
+  }
+
+  #renderBoard() {
+    render(this.#boardComponent, this.#boardContainer);
+    render(this.#sectionComponent, this.#boardComponent.element);
+
+    if (this.#boardFilms.length === 0) {
+      this.#renderNoFilms();
+      return;
+    }
+    this.#renderSort();
+    this.#renderFilmList();
   }
 }
