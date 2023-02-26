@@ -3,11 +3,11 @@ import BoardView from '../view/board-view.js';
 import SectionView from '../view/section-view.js';
 import SortView from '../view/sort-view.js';
 import FilmListView from '../view/film-list-view.js';
-import FilmView from '../view/film-view.js';
-import FilmDetailsView from '../view/film-details-view.js';
 import LoadMoreButtonView from '../view/load-more-button-view.js';
 import EmptyListView from '../view/empty-list-view.js';
 import {FILM_COUNT_PER_STEP} from '../const.js';
+import FilmPrsenter from './film-presener.js';
+import {updateItem} from '../utils/common.js';
 
 export default class BoardPresenter {
   #boardContainer = null;
@@ -25,6 +25,7 @@ export default class BoardPresenter {
   #boardFilms = [];
   #boardComments = [];
   #renderedFilmCount = FILM_COUNT_PER_STEP;
+  #filmsPresenter = new Map();
 
   constructor({boardContainer, popupContainer, filmsModel, commentsModel}) {
     this.#boardContainer = boardContainer;
@@ -50,45 +51,23 @@ export default class BoardPresenter {
     }
   };
 
+  #handleFilmChange = (updatedFilm) => {
+    this.#boardFilms = updateItem(this.#boardFilms, updatedFilm);
+    this.#filmsPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
+  };
+
   #renderSort() {
     render(this.#sortComponent, this.#boardContainer, RenderPosition.AFTERBEGIN);
   }
 
   #renderFilm(film, comments) {
-    const escKeyDownHandler = (evt) => {
-      if (evt.key === 'Escape' || evt.key === 'Esc') {
-        evt.preventDefault();
-        replaceFormToCard.call(this);
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    };
-
-    const filmComponent = new FilmView({
-      film,
-      onDetailsClick: () => {
-        replaceCardToForm.call(this);
-        document.addEventListener('keydown', escKeyDownHandler);
-      }
+    const filmPresenter = new FilmPrsenter({
+      filmListContainer: this.#filmListComponent.element,
+      popupContainer: this.#popupContainer,
+      onDataChange: this.#handleFilmChange,
     });
-
-    const filmDetailsComponent = new FilmDetailsView({
-      film,
-      comments,
-      onDetailsClose: () => {
-        replaceFormToCard.call(this);
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    });
-
-    function replaceCardToForm() {
-      this.#popupContainer.append(filmDetailsComponent.element);
-    }
-
-    function replaceFormToCard() {
-      remove(filmDetailsComponent);
-    }
-
-    render(filmComponent, this.#filmListComponent.element);
+    filmPresenter.init(film, comments);
+    this.#filmsPresenter.set(film.id, filmPresenter);
   }
 
   #renderFilms(from, to) {
@@ -106,6 +85,14 @@ export default class BoardPresenter {
     });
 
     render(this.#loadMoreButtonComponent, this.#sectionComponent.element);
+  }
+
+  #clearFilmList() {
+    this.#filmsPresenter.forEach((presenter) => presenter.destroy());
+    this.#filmsPresenter.clear();
+    this.#renderedFilmCount = FILM_COUNT_PER_STEP;
+
+    remove(this.#loadMoreButtonComponent);
   }
 
   #renderFilmList() {

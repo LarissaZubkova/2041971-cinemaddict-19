@@ -37,12 +37,22 @@ function createFilmTemplate(film) {
 export default class FilmView extends AbstractView {
   #film = null;
   #handleDetailsClick = null;
+  #handleWatchlistClick = null;
+  #handleWatchedClick = null;
+  #handleFavoriteClick = null;
 
-  constructor({film, onDetailsClick}) {
+  constructor({film, onDetailsClick, onWatchlistClick, onWatchedClick, onFavoriteClick}) {
     super();
     this.#film = film;
     this.#handleDetailsClick = onDetailsClick;
+    this.#handleWatchlistClick = onWatchlistClick;
+    this.#handleWatchedClick = onWatchedClick;
+    this.#handleFavoriteClick = onFavoriteClick;
+
     this.element.querySelector('.film-card__link').addEventListener('click', this.#detailsClickHandler);
+    this.element.querySelector('.film-card__controls-item--add-to-watchlist').addEventListener('click', this.#watchlistClickHandler);
+    this.element.querySelector('.film-card__controls-item--mark-as-watched').addEventListener('click', this.#watchedClickHandler);
+    this.element.querySelector('.film-card__controls-item--favorite').addEventListener('click', this.#favoriteClickHandler);
   }
 
   get template() {
@@ -53,5 +63,20 @@ export default class FilmView extends AbstractView {
     evt.preventDefault();
     this.#handleDetailsClick();
     document.querySelector('body').classList.add('hide-overflow');
+  };
+
+  #watchlistClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleWatchlistClick();
+  };
+
+  #watchedClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleWatchedClick();
+  };
+
+  #favoriteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFavoriteClick();
   };
 }

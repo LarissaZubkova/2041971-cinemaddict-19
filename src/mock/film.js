@@ -1,3 +1,4 @@
+import {nanoid} from 'nanoid';
 import {getRandomInteger, getRandomArrayElement} from '../utils/common.js';
 import {getRandomBool, generateFilmData, generateDates} from '../utils/film.js';
 import {TITLE, IMAGES, IMAGES_PATH, ACTORS, COUNTRY, GENRE, DESCRIPTIONS, Digits} from '../const.js';
@@ -10,13 +11,13 @@ function generateDescription() {
   return currentDescription.join(' ');
 }
 
-export function generateFilm(id) {
+export function generateFilm() {
   const commentsGroup = Array.from({length:getRandomInteger(1, 10)}, (i, j) => getRandomInteger(j + 1));
   const comments = new Set(commentsGroup);
   const isWatched = getRandomBool();
 
   return {
-    id,
+    id: nanoid(),
     comments: [...comments],
     filmInfo: {
       title: getRandomArrayElement(TITLE),

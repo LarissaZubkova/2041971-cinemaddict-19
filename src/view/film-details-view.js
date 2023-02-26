@@ -5,34 +5,6 @@ import dayjs from 'dayjs';
 import require from 'dayjs';
 import updateLocale from 'dayjs/plugin/updateLocale';
 
-const BLANK_FILM = {
-  id: '',
-  comments: [],
-  filmInfo: {
-    title: '',
-    alternativeTitle: '',
-    totalRating: '',
-    poster: '',
-    ageRating: '',
-    director: '',
-    writers: [],
-    actors: [],
-    release: {
-      date: null,
-      releaseCountry: '',
-    },
-    duration: '',
-    genre: [],
-    description: '',
-  },
-  userDetails: {
-    watchlist: false,
-    alreadyWatched: false,
-    watchingDate: null,
-    favorite: false,
-  }
-};
-
 function createGenreTemplate(genres) {
   return genres.map((genre) => `<span class="film-details__genre">${genre}</span>`).join(' ');
 }
@@ -217,14 +189,23 @@ export default class FilmDetailsView extends AbstractView {
   #film = null;
   #comments = null;
   #handleDetailsClose = null;
+  #handleWatchlistClick = null;
+  #handleWatchedClick = null;
+  #handleFavoriteClick = null;
 
-  constructor({film = BLANK_FILM, comments, onDetailsClose}) {
+  constructor({film, comments, onDetailsClose, onWatchlistClick, onWatchedClick, onFavoriteClick}) {
     super();
     this.#film = film;
     this.#comments = comments;
     this.#handleDetailsClose = onDetailsClose;
+    this.#handleWatchlistClick = onWatchlistClick;
+    this.#handleWatchedClick = onWatchedClick;
+    this.#handleFavoriteClick = onFavoriteClick;
 
     this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#detailsCloseHandler);
+    this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchlistClickHandler);
+    this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#watchedClickHandler);
+    this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#favoriteClickHandler);
   }
 
   get template() {
@@ -235,5 +216,20 @@ export default class FilmDetailsView extends AbstractView {
     evt.preventDefault();
     this.#handleDetailsClose();
     document.querySelector('body').classList.remove('hide-overflow');
+  };
+
+  #watchlistClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleWatchlistClick();
+  };
+
+  #watchedClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleWatchedClick();
+  };
+
+  #favoriteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFavoriteClick();
   };
 }
