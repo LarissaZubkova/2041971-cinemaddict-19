@@ -67,21 +67,46 @@ export default class BoardPresenter {
       popupContainer: this.#popupContainer,
       onDataChange: this.#handleFilmChange,
     });
+
+
     filmPresenter.init(film, comments);
     this.#filmsPresenter.set(film.id, filmPresenter);
+  }
+
+  #renderTopRatedFilm(film, comments) {
+    const topRatedPresenter = new FilmPrsenter({
+      filmListContainer: this.#sectionTopRatedComponent.filmListContainer,
+      popupContainer: this.#popupContainer,
+      onDataChange: this.#handleFilmChange,
+    });
+
+    topRatedPresenter.init(film, comments);
+    this.#filmsPresenter.set(film.id, topRatedPresenter);
+  }
+
+  #renderMostCommentedFilm(film, comments) {
+    const mostCommentedPresenter = new FilmPrsenter({
+      filmListContainer: this.#sectionMostCommentedComponent.filmListContainer,
+      popupContainer: this.#popupContainer,
+      onDataChange: this.#handleFilmChange,
+    });
+
+    mostCommentedPresenter.init(film, comments);
+    this.#filmsPresenter.set(film.id, mostCommentedPresenter);
   }
 
   #renderFilms(from, to) {
     this.#boardFilms.slice(from, to).forEach((film) => this.#renderFilm(film, this.#boardComments));
   }
 
-  #renderExtraFilms = () => {
-    const extraFilms = {
-      TOP_RATED: getTopRatedFilms(this.#boardFilms),
-      MOST_COMMENTED: getMostCommentedFilms(this.#boardFilms)
-    };
+  #renderTopRatedFilms() {
+    const topRatedFilms = getTopRatedFilms(this.#boardFilms);
+    topRatedFilms.forEach((film) => this.#renderTopRatedFilm(film, this.#boardComments));
+  };
 
-    console.log(extraFilms.TOP_RATED);
+  #renderMostCommentedFilms() {
+    const mostCommentedFilms = getMostCommentedFilms(this.#boardFilms);
+    mostCommentedFilms.forEach((film) => this.#renderMostCommentedFilm(film, this.#boardComments));
   };
 
   #renderNoFilms() {
@@ -111,7 +136,8 @@ export default class BoardPresenter {
     if (this.#boardFilms.length > FILM_COUNT_PER_STEP) {
       this.#renderLoadMoreButton();
     }
-    this.#renderExtraFilms();
+    this.#renderTopRatedFilms();
+    this.#renderMostCommentedFilms();
   }
 
   #renderBoard() {

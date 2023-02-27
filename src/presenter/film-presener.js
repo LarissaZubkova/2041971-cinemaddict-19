@@ -115,7 +115,8 @@ export default class FilmPrsenter {
   };
 
   #handleDetailsClose = (film) => {
-    this.#handleDataChange(film);
     this.#replaceFormToCard();
+    this.#handleDataChange(film);
+
   };
 }
