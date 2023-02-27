@@ -45,10 +45,25 @@ function generateDates() {
   };
 }
 
+const isExtra = true;
+
+const getTopRatedFilms = (films) => {
+  const topRatedTwoFilms = Array.from(films.values()).sort((a, b) => b.filmInfo.totalRating - a.filmInfo.totalRating).slice(0, 2);
+  return topRatedTwoFilms;
+};
+
+const getMostCommentedFilms = (films) => {
+  const topRatedTwoFilms = Array.from(films.values()).sort((a, b) => b.comments.length - a.comments.length).slice(0, 2);
+  return topRatedTwoFilms;
+};
+
 export {
   humanizeFilmDate,
   formatDuration,
   getRandomBool,
   generateFilmData,
   generateDates,
+  isExtra,
+  getTopRatedFilms,
+  getMostCommentedFilms,
 };

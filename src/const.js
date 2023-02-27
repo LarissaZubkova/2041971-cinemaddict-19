@@ -84,6 +84,11 @@ const FilterType = {
   FAVORITES: 'favorites',
 };
 
+const Titles = {
+  TOP_RATED: 'Top Rated',
+  MOST_COMMENTED: 'Most Commented',
+};
+
 export {
   TITLE,
   IMAGES,
@@ -98,4 +103,5 @@ export {
   Digits,
   FILM_COUNT_PER_STEP,
   FilterType,
+  Titles,
 };

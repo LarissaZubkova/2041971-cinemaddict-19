@@ -2,10 +2,10 @@ import {render, remove, RenderPosition} from '../framework/render.js';
 import BoardView from '../view/board-view.js';
 import SectionView from '../view/section-view.js';
 import SortView from '../view/sort-view.js';
-import FilmListView from '../view/film-list-view.js';
 import LoadMoreButtonView from '../view/load-more-button-view.js';
 import EmptyListView from '../view/empty-list-view.js';
-import {FILM_COUNT_PER_STEP} from '../const.js';
+import {FILM_COUNT_PER_STEP, Titles} from '../const.js';
+import {isExtra, getTopRatedFilms, getMostCommentedFilms} from '../utils/film.js';
 import FilmPrsenter from './film-presener.js';
 import {updateItem} from '../utils/common.js';
 
@@ -17,7 +17,8 @@ export default class BoardPresenter {
 
   #boardComponent = new BoardView();
   #sectionComponent = new SectionView();
-  #filmListComponent = new FilmListView();
+  #sectionTopRatedComponent = new SectionView(isExtra, Titles.TOP_RATED);
+  #sectionMostCommentedComponent = new SectionView(isExtra, Titles.MOST_COMMENTED);
   #loadMoreButtonComponent = null;
   #sortComponent = new SortView();
   #noFilmComponent = new EmptyListView();
@@ -62,7 +63,7 @@ export default class BoardPresenter {
 
   #renderFilm(film, comments) {
     const filmPresenter = new FilmPrsenter({
-      filmListContainer: this.#filmListComponent.element,
+      filmListContainer: this.#sectionComponent.filmListContainer,
       popupContainer: this.#popupContainer,
       onDataChange: this.#handleFilmChange,
     });
@@ -73,6 +74,15 @@ export default class BoardPresenter {
   #renderFilms(from, to) {
     this.#boardFilms.slice(from, to).forEach((film) => this.#renderFilm(film, this.#boardComments));
   }
+
+  #renderExtraFilms = () => {
+    const extraFilms = {
+      TOP_RATED: getTopRatedFilms(this.#boardFilms),
+      MOST_COMMENTED: getMostCommentedFilms(this.#boardFilms)
+    };
+
+    console.log(extraFilms.TOP_RATED);
+  };
 
   #renderNoFilms() {
     this.#sectionComponent.element.innerHTML = '';
@@ -96,17 +106,19 @@ export default class BoardPresenter {
   }
 
   #renderFilmList() {
-    render(this.#filmListComponent, this.#sectionComponent.element);
     this.#renderFilms(0, Math.min(this.#boardFilms.length, FILM_COUNT_PER_STEP));
 
     if (this.#boardFilms.length > FILM_COUNT_PER_STEP) {
       this.#renderLoadMoreButton();
     }
+    this.#renderExtraFilms();
   }
 
   #renderBoard() {
     render(this.#boardComponent, this.#boardContainer);
     render(this.#sectionComponent, this.#boardComponent.element);
+    render(this.#sectionTopRatedComponent, this.#boardComponent.element);
+    render(this.#sectionMostCommentedComponent, this.#boardComponent.element);
 
     if (this.#boardFilms.length === 0) {
       this.#renderNoFilms();
