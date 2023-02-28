@@ -1,21 +1,26 @@
 import {render, remove, replace} from '../framework/render.js';
 import FilmView from '../view/film-view.js';
 import FilmDetailsView from '../view/film-details-view.js';
+import {Mode} from '../const.js';
 
 export default class FilmPrsenter {
   #filmListContainer = null;
   #popupContainer = null;
   #handleDataChange = null;
+  #handleModeChange = null;
+
   #filmComponent = null;
   #filmDetailsComponent = null;
 
   #film = null;
   #comments = null;
+  #mode = Mode.DEFAULT;
 
-  constructor({filmListContainer, popupContainer, onDataChange}) {
+  constructor({filmListContainer, popupContainer, onDataChange, onModeChange}) {
     this.#filmListContainer = filmListContainer;
     this.#popupContainer = popupContainer;
     this.#handleDataChange = onDataChange;
+    this.#handleModeChange = onModeChange;
   }
 
   init(film, comments) {
@@ -46,11 +51,11 @@ export default class FilmPrsenter {
       render(this.#filmComponent, this.#filmListContainer);
       return;
     }
-    if (this.#filmListContainer.contains(prevFilmComponent.element)) {
+    if (this.#mode === Mode.DEFAULT) {
       replace(this.#filmComponent, prevFilmComponent);
     }
 
-    if (this.#popupContainer.contains(prevFilmDetailsComponent.element)) {
+    if (this.#mode === Mode.DETAILS) {
       replace(this.#filmDetailsComponent, prevFilmDetailsComponent);
     }
 
@@ -63,14 +68,23 @@ export default class FilmPrsenter {
     remove(this.#filmDetailsComponent);
   }
 
+  resetView() {
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#replaceFormToCard();
+    }
+  }
+
   #replaceCardToForm() {
     this.#popupContainer.append(this.#filmDetailsComponent.element);
     document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#handleModeChange();
+    this.#mode = Mode.DETAILS;
   }
 
   #replaceFormToCard() {
     remove(this.#filmDetailsComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#mode = Mode.DEFAULT;
   }
 
   #escKeyDownHandler = (evt) => {

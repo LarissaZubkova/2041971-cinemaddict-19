@@ -89,6 +89,11 @@ const Titles = {
   MOST_COMMENTED: 'Most Commented',
 };
 
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  DETAILS: 'DETAILS',
+};
+
 export {
   TITLE,
   IMAGES,
@@ -104,4 +109,5 @@ export {
   FILM_COUNT_PER_STEP,
   FilterType,
   Titles,
+  Mode,
 };

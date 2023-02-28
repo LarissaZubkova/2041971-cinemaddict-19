@@ -214,7 +214,7 @@ export default class FilmDetailsView extends AbstractView {
 
   #detailsCloseHandler = (evt) => {
     evt.preventDefault();
-    this.#handleDetailsClose();
+    this.#handleDetailsClose(this.#film);
     document.querySelector('body').classList.remove('hide-overflow');
   };
 

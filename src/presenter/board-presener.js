@@ -52,6 +52,10 @@ export default class BoardPresenter {
     }
   };
 
+  #handleModeChange = () => {
+    this.#filmsPresenter.forEach((presenter) => presenter.resetView());
+  };
+
   #handleFilmChange = (updatedFilm) => {
     this.#boardFilms = updateItem(this.#boardFilms, updatedFilm);
     this.#filmsPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
@@ -66,8 +70,8 @@ export default class BoardPresenter {
       filmListContainer: this.#sectionComponent.filmListContainer,
       popupContainer: this.#popupContainer,
       onDataChange: this.#handleFilmChange,
+      onModeChange: this.#handleModeChange,
     });
-
 
     filmPresenter.init(film, comments);
     this.#filmsPresenter.set(film.id, filmPresenter);
@@ -78,6 +82,7 @@ export default class BoardPresenter {
       filmListContainer: this.#sectionTopRatedComponent.filmListContainer,
       popupContainer: this.#popupContainer,
       onDataChange: this.#handleFilmChange,
+      onModeChange: this.#handleModeChange,
     });
 
     topRatedPresenter.init(film, comments);
@@ -89,6 +94,7 @@ export default class BoardPresenter {
       filmListContainer: this.#sectionMostCommentedComponent.filmListContainer,
       popupContainer: this.#popupContainer,
       onDataChange: this.#handleFilmChange,
+      onModeChange: this.#handleModeChange,
     });
 
     mostCommentedPresenter.init(film, comments);
@@ -102,12 +108,12 @@ export default class BoardPresenter {
   #renderTopRatedFilms() {
     const topRatedFilms = getTopRatedFilms(this.#boardFilms);
     topRatedFilms.forEach((film) => this.#renderTopRatedFilm(film, this.#boardComments));
-  };
+  }
 
   #renderMostCommentedFilms() {
     const mostCommentedFilms = getMostCommentedFilms(this.#boardFilms);
     mostCommentedFilms.forEach((film) => this.#renderMostCommentedFilm(film, this.#boardComments));
-  };
+  }
 
   #renderNoFilms() {
     this.#sectionComponent.element.innerHTML = '';
