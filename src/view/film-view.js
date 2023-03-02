@@ -1,6 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {humanizeFilmDate, formatDuration} from '../utils/film.js';
-import {DateFormat} from '../const.js';
+import {DateFormat} from '../consts.js';
 
 function getControlsClassName(control) {
   return control ? 'film-card__controls-item--active' : '';

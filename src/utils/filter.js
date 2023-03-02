@@ -1,4 +1,4 @@
-import {FilterType} from '../const';
+import {FilterType} from '../consts.js';
 
 const filter = {
   [FilterType.ALL]: (films) => films,

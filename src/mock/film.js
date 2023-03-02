@@ -1,7 +1,7 @@
 import {nanoid} from 'nanoid';
 import {getRandomInteger, getRandomArrayElement} from '../utils/common.js';
 import {getRandomBool, generateFilmData, generateDates} from '../utils/film.js';
-import {TITLE, IMAGES, IMAGES_PATH, ACTORS, COUNTRY, GENRE, DESCRIPTIONS, Digits} from '../const.js';
+import {TITLE, IMAGES, IMAGES_PATH, ACTORS, COUNTRY, GENRE, DESCRIPTIONS, Digits} from './mock_consts.js';
 
 function generateDescription() {
   const currentDescription = [];

@@ -1,7 +1,7 @@
 import {render, remove, replace} from '../framework/render.js';
 import FilmView from '../view/film-view.js';
 import FilmDetailsView from '../view/film-details-view.js';
-import {Mode} from '../const.js';
+import {Mode} from '../consts.js';
 
 export default class FilmPrsenter {
   #filmListContainer = null;

@@ -1,6 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {humanizeFilmDate, formatDuration} from '../utils/film.js';
-import {DateFormat, EMOTIONS} from '../const.js';
+import {DateFormat, RALATIVE_TIME} from '../consts.js';
+import {EMOTIONS} from '../mock/mock_consts.js';
 import dayjs from 'dayjs';
 import require from 'dayjs';
 import updateLocale from 'dayjs/plugin/updateLocale';
@@ -18,23 +19,8 @@ function getCommentDate(date) {
   dayjs.extend(relativeTime);
   dayjs.extend(updateLocale);
 
-  dayjs.updateLocale('en', {
-    relativeTime: {
-      future: 'in %s',
-      past: '%s',
-      s: 'Today',
-      m: 'Today',
-      mm: 'Today',
-      h: 'Today',
-      hh: 'Today',
-      d: 'a day ago',
-      dd: '%d days ago',
-      M: 'a month ago',
-      MM: '%d months ago',
-      y: 'a year ago',
-      yy: '%d years ago',
-    }
-  });
+  dayjs.updateLocale('en', {relativeTime: RALATIVE_TIME});
+
   const date1 = dayjs();
   const date2 = dayjs(date);
 
@@ -76,7 +62,8 @@ function createEmotionTemplate(emotions) {
 
 function createFilmDetailsTemplate(film, commentsModel) {
   const {comments, filmInfo, userDetails} = film;
-  const {poster,
+  const {
+    poster,
     ageRating,
     title,
     alternativeTitle,
@@ -87,7 +74,8 @@ function createFilmDetailsTemplate(film, commentsModel) {
     release,
     duration,
     genre,
-    description} = filmInfo;
+    description
+  } = filmInfo;
   const {watchlist, alreadyWatched, favorite} = userDetails;
 
   return `<section class="film-details">

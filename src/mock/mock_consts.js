@@ -1,3 +1,5 @@
+const COMMENTS_COUNT = 10;
+
 const TITLE = [
   'Mulholland Drive',
   'In the Mood for Love',
@@ -63,38 +65,14 @@ const EMOTIONS = ['smile', 'sleeping', 'puke', 'angry'];
 
 const FILM_COUNT = 22;
 
-const DateFormat = {
-  RELEASE_FORMAT: 'YYYY',
-  FORM_DATE_FORMAT: 'D MMMM YYYY',
-  COMMENT_DATE_FORMAT: 'YYYY/MM/DD HH:mm',
-};
-
 const Digits = {
   MAX: 10,
   MIN: 1,
   AGE_RATING: 18,
 };
 
-const FILM_COUNT_PER_STEP = 5;
-
-const FilterType = {
-  ALL: 'all',
-  WATCHLIST: 'watchlist',
-  HISTORY: 'history',
-  FAVORITES: 'favorites',
-};
-
-const Titles = {
-  TOP_RATED: 'Top Rated',
-  MOST_COMMENTED: 'Most Commented',
-};
-
-const Mode = {
-  DEFAULT: 'DEFAULT',
-  DETAILS: 'DETAILS',
-};
-
 export {
+  COMMENTS_COUNT,
   TITLE,
   IMAGES,
   IMAGES_PATH,
@@ -104,10 +82,5 @@ export {
   DESCRIPTIONS,
   EMOTIONS,
   FILM_COUNT,
-  DateFormat,
   Digits,
-  FILM_COUNT_PER_STEP,
-  FilterType,
-  Titles,
-  Mode,
 };
