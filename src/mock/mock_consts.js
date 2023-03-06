@@ -1,3 +1,5 @@
+const COMMENTS_COUNT = 10;
+
 const TITLE = [
   'Mulholland Drive',
   'In the Mood for Love',
@@ -61,13 +63,7 @@ const IMAGES_PATH = './images/posters/';
 
 const EMOTIONS = ['smile', 'sleeping', 'puke', 'angry'];
 
-const FILM_COUNT = 5;
-
-const DateFormat = {
-  RELEASE_FORMAT: 'YYYY',
-  FORM_DATE_FORMAT: 'D MMMM YYYY',
-  COMMENT_DATE_FORMAT: 'YYYY/MM/DD HH:mm',
-};
+const FILM_COUNT = 22;
 
 const Digits = {
   MAX: 10,
@@ -76,6 +72,7 @@ const Digits = {
 };
 
 export {
+  COMMENTS_COUNT,
   TITLE,
   IMAGES,
   IMAGES_PATH,
@@ -85,6 +82,5 @@ export {
   DESCRIPTIONS,
   EMOTIONS,
   FILM_COUNT,
-  DateFormat,
-  Digits
+  Digits,
 };

@@ -1,6 +1,6 @@
-import {createElement} from '../render.js';
-import {humanizeFilmDate, formatDuration} from '../utils.js';
-import {DateFormat} from '../const.js';
+import AbstractView from '../framework/view/abstract-view.js';
+import {humanizeFilmDate, formatDuration} from '../utils/film.js';
+import {DateFormat} from '../consts.js';
 
 function getControlsClassName(control) {
   return control ? 'film-card__controls-item--active' : '';
@@ -34,27 +34,49 @@ function createFilmTemplate(film) {
 </article>`;
 }
 
-export default class FilmView {
-  #element = null;
+export default class FilmView extends AbstractView {
   #film = null;
+  #handleDetailsClick = null;
+  #handleWatchlistClick = null;
+  #handleWatchedClick = null;
+  #handleFavoriteClick = null;
 
-  constructor({film}) {
+  constructor({film, onDetailsClick, onWatchlistClick, onWatchedClick, onFavoriteClick}) {
+    super();
     this.#film = film;
+    this.#handleDetailsClick = onDetailsClick;
+    this.#handleWatchlistClick = onWatchlistClick;
+    this.#handleWatchedClick = onWatchedClick;
+    this.#handleFavoriteClick = onFavoriteClick;
+
+    this.element.querySelector('.film-card__link').addEventListener('click', this.#detailsClickHandler);
+    this.element.querySelector('.film-card__controls-item--add-to-watchlist').addEventListener('click', this.#watchlistClickHandler);
+    this.element.querySelector('.film-card__controls-item--mark-as-watched').addEventListener('click', this.#watchedClickHandler);
+    this.element.querySelector('.film-card__controls-item--favorite').addEventListener('click', this.#favoriteClickHandler);
   }
 
   get template() {
     return createFilmTemplate(this.#film);
   }
 
-  get element() {
-    if(!this.#element){
-      this.#element = createElement(this.template);
-    }
+  #detailsClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleDetailsClick();
+    document.querySelector('body').classList.add('hide-overflow');
+  };
 
-    return this.#element;
-  }
+  #watchlistClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleWatchlistClick();
+  };
 
-  removeElement() {
-    this.#element = null;
-  }
+  #watchedClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleWatchedClick();
+  };
+
+  #favoriteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFavoriteClick();
+  };
 }

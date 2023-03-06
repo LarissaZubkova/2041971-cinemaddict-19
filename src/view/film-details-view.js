@@ -1,37 +1,10 @@
-import {createElement} from '../render.js';
-import {humanizeFilmDate, formatDuration} from '../utils.js';
-import {DateFormat, EMOTIONS} from '../const.js';
+import AbstractView from '../framework/view/abstract-view.js';
+import {humanizeFilmDate, formatDuration} from '../utils/film.js';
+import {DateFormat, RALATIVE_TIME} from '../consts.js';
+import {EMOTIONS} from '../mock/mock_consts.js';
 import dayjs from 'dayjs';
 import require from 'dayjs';
 import updateLocale from 'dayjs/plugin/updateLocale';
-
-const BLANK_FILM = {
-  id: '',
-  comments: [],
-  filmInfo: {
-    title: '',
-    alternativeTitle: '',
-    totalRating: '',
-    poster: '',
-    ageRating: '',
-    director: '',
-    writers: [],
-    actors: [],
-    release: {
-      date: null,
-      releaseCountry: '',
-    },
-    duration: '',
-    genre: [],
-    description: '',
-  },
-  userDetails: {
-    watchlist: false,
-    alreadyWatched: false,
-    watchingDate: null,
-    favorite: false,
-  }
-};
 
 function createGenreTemplate(genres) {
   return genres.map((genre) => `<span class="film-details__genre">${genre}</span>`).join(' ');
@@ -46,23 +19,8 @@ function getCommentDate(date) {
   dayjs.extend(relativeTime);
   dayjs.extend(updateLocale);
 
-  dayjs.updateLocale('en', {
-    relativeTime: {
-      future: 'in %s',
-      past: '%s',
-      s: 'Today',
-      m: 'Today',
-      mm: 'Today',
-      h: 'Today',
-      hh: 'Today',
-      d: 'a day ago',
-      dd: '%d days ago',
-      M: 'a month ago',
-      MM: '%d months ago',
-      y: 'a year ago',
-      yy: '%d years ago',
-    }
-  });
+  dayjs.updateLocale('en', {relativeTime: RALATIVE_TIME});
+
   const date1 = dayjs();
   const date2 = dayjs(date);
 
@@ -71,7 +29,7 @@ function getCommentDate(date) {
     : dayjs(date).fromNow();
 }
 
-function createCommentTemplate(currentComments, commentsModel) {
+function createCommentsTemplate(currentComments, commentsModel) {
   const commentsForFilm = commentsModel.filter((comment) => currentComments.includes(comment.id));
 
   return commentsForFilm.map((commentForFilm) => {
@@ -104,7 +62,8 @@ function createEmotionTemplate(emotions) {
 
 function createFilmDetailsTemplate(film, commentsModel) {
   const {comments, filmInfo, userDetails} = film;
-  const {poster,
+  const {
+    poster,
     ageRating,
     title,
     alternativeTitle,
@@ -115,7 +74,8 @@ function createFilmDetailsTemplate(film, commentsModel) {
     release,
     duration,
     genre,
-    description} = filmInfo;
+    description
+  } = filmInfo;
   const {watchlist, alreadyWatched, favorite} = userDetails;
 
   return `<section class="film-details">
@@ -193,7 +153,7 @@ function createFilmDetailsTemplate(film, commentsModel) {
         <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
         <ul class="film-details__comments-list">
-        ${createCommentTemplate(comments, commentsModel)}
+        ${createCommentsTemplate(comments, commentsModel)}
         </ul>
 
         <form class="film-details__new-comment" action="" method="get">
@@ -213,29 +173,51 @@ function createFilmDetailsTemplate(film, commentsModel) {
 </section>`;
 }
 
-export default class FilmDetailsView {
-  #element = null;
+export default class FilmDetailsView extends AbstractView {
   #film = null;
   #comments = null;
+  #handleDetailsClose = null;
+  #handleWatchlistClick = null;
+  #handleWatchedClick = null;
+  #handleFavoriteClick = null;
 
-  constructor({film = BLANK_FILM, comments}) {
+  constructor({film, comments, onDetailsClose, onWatchlistClick, onWatchedClick, onFavoriteClick}) {
+    super();
     this.#film = film;
     this.#comments = comments;
+    this.#handleDetailsClose = onDetailsClose;
+    this.#handleWatchlistClick = onWatchlistClick;
+    this.#handleWatchedClick = onWatchedClick;
+    this.#handleFavoriteClick = onFavoriteClick;
+
+    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#detailsCloseHandler);
+    this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchlistClickHandler);
+    this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#watchedClickHandler);
+    this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#favoriteClickHandler);
   }
 
   get template() {
     return createFilmDetailsTemplate(this.#film, this.#comments);
   }
 
-  get element() {
-    if(!this.#element){
-      this.#element = createElement(this.template);
-    }
+  #detailsCloseHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleDetailsClose(this.#film);
+    document.querySelector('body').classList.remove('hide-overflow');
+  };
 
-    return this.#element;
-  }
+  #watchlistClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleWatchlistClick();
+  };
 
-  removeElement() {
-    this.#element = null;
-  }
+  #watchedClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleWatchedClick();
+  };
+
+  #favoriteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFavoriteClick();
+  };
 }
