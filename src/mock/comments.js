@@ -1,6 +1,6 @@
 import {getRandomArrayElement} from '../utils/common.js';
 import {generateDates} from '../utils/film.js';
-import {COMMENTS_COUNT, ACTORS, DESCRIPTIONS, EMOTIONS} from './mock_consts.js';
+import {COMMENTS_COUNT, ACTORS, DESCRIPTIONS, EMOTIONS} from './mock-consts.js';
 
 function generateComment(id) {
   return {

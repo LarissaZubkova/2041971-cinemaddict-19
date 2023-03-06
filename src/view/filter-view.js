@@ -12,7 +12,7 @@ function createFilterItemTemplate(filter, isActive) {
   const {name, count} = filter;
 
   return `<a href="#${name}" class="main-navigation__item ${getFiltersClassName(isActive)}">${name}
-    ${name === 'all' ? '' : createFilteredCountTemplate(count)}
+    ${name === 'All movies' ? '' : createFilteredCountTemplate(count)}
   </a>`;
 }
 

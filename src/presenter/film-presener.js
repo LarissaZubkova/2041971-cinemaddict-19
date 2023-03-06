@@ -51,6 +51,7 @@ export default class FilmPrsenter {
       render(this.#filmComponent, this.#filmListContainer);
       return;
     }
+
     if (this.#mode === Mode.DEFAULT) {
       replace(this.#filmComponent, prevFilmComponent);
     }
@@ -131,6 +132,5 @@ export default class FilmPrsenter {
   #handleDetailsClose = (film) => {
     this.#replaceFormToCard();
     this.#handleDataChange(film);
-
   };
 }

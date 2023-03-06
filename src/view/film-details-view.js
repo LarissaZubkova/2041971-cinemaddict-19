@@ -1,7 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {humanizeFilmDate, formatDuration} from '../utils/film.js';
 import {DateFormat, RALATIVE_TIME} from '../consts.js';
-import {EMOTIONS} from '../mock/mock_consts.js';
+import {EMOTIONS} from '../mock/mock-consts.js';
 import dayjs from 'dayjs';
 import require from 'dayjs';
 import updateLocale from 'dayjs/plugin/updateLocale';
