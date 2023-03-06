@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {humanizeFilmDate, formatDuration} from '../utils/film.js';
 import {DateFormat, RALATIVE_TIME} from '../consts.js';
 import {EMOTIONS} from '../mock/mock-consts.js';
@@ -173,7 +173,7 @@ function createFilmDetailsTemplate(film, commentsModel) {
 </section>`;
 }
 
-export default class FilmDetailsView extends AbstractView {
+export default class FilmDetailsView extends AbstractStatefulView{
   #film = null;
   #comments = null;
   #handleDetailsClose = null;
@@ -183,7 +183,7 @@ export default class FilmDetailsView extends AbstractView {
 
   constructor({film, comments, onDetailsClose, onWatchlistClick, onWatchedClick, onFavoriteClick}) {
     super();
-    this.#film = film;
+    this._setState(FilmDetailsView.parseFilmToState(film));
     this.#comments = comments;
     this.#handleDetailsClose = onDetailsClose;
     this.#handleWatchlistClick = onWatchlistClick;
@@ -194,15 +194,16 @@ export default class FilmDetailsView extends AbstractView {
     this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchlistClickHandler);
     this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#watchedClickHandler);
     this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#favoriteClickHandler);
+    this.element.querySelector('.film-details__emoji-list').addEventListener('click', this.#emojiClickHandler);
   }
 
   get template() {
-    return createFilmDetailsTemplate(this.#film, this.#comments);
+    return createFilmDetailsTemplate(this._state, this.#comments);
   }
 
   #detailsCloseHandler = (evt) => {
     evt.preventDefault();
-    this.#handleDetailsClose(this.#film);
+    this.#handleDetailsClose(FilmDetailsView.parseStateToFilm(this._state));
     document.querySelector('body').classList.remove('hide-overflow');
   };
 
@@ -220,4 +221,17 @@ export default class FilmDetailsView extends AbstractView {
     evt.preventDefault();
     this.#handleFavoriteClick();
   };
+
+  #emojiClickHandler = (evt) => {
+    evt.preventDefault();
+    this.updateElement({})
+  }
+
+  static parseFilmToState(film) {
+    return {...film};
+  }
+
+  static parseStateToFilm(state) {
+    return {...state};
+  }
 }
