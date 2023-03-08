@@ -47,6 +47,18 @@ const RALATIVE_TIME = {
   yy: '%d years ago',
 };
 
+const UserAction = {
+  UPDATE_FILM: 'UPDATE_FILM',
+  ADD_COMMENT: 'ADD_COMMENT',
+  DELETE_COMMENT: 'DELETE_COMMENT',
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
 export {
   DateFormat,
   FILM_COUNT_PER_STEP,
@@ -55,5 +67,7 @@ export {
   Mode,
   SortType,
   FILMS_EXTRA_COUNT,
-  RALATIVE_TIME
+  RALATIVE_TIME,
+  UserAction,
+  UpdateType,
 };

@@ -22,9 +22,9 @@ export default class BoardPresenter {
   #loadMoreButtonComponent = null;
   #sortComponent = null;
   #noFilmComponent = new EmptyListView();
-  #sourcedBoardFilms = [];
+  //#sourcedBoardFilms = [];
 
-  #boardFilms = [];
+  //#boardFilms = [];
   #boardComments = [];
   #renderedFilmCount = FILM_COUNT_PER_STEP;
   #filmsPresenter = new Map();
@@ -39,19 +39,33 @@ export default class BoardPresenter {
     this.#commentsModel = commentsModel;
   }
 
+  get films() {
+    switch (this.#currentSortType) {
+      case SortType.DATE:
+        return [...this.#filmsModel.films].sort(sortByDate);
+      case SortType.RATING:
+        return [...this.#filmsModel.films].sort(sortByRating);
+    }
+
+    return this.#filmsModel.films;
+  }
+
+  get comments() {
+    return this.#commentsModel.comments;
+  }
+
   init() {
-    this.#boardFilms = [...this.#filmsModel.films];
     this.#boardComments = [...this.#commentsModel.comments];
-    this.#sourcedBoardFilms = [...this.#filmsModel.films];
     this.#renderBoard();
   }
 
   #handleLoadMoreButtonClick = () => {
-    this.#renderFilms(this.#renderedFilmCount, this.#renderedFilmCount + FILM_COUNT_PER_STEP);
+    const filmCount = this.films.length;
 
-    this.#renderedFilmCount += FILM_COUNT_PER_STEP;
+    const newRenderedFilmCount = Math.min(filmsCount, this.#renderedFilmCount + FILM_COUNT_PER_STEP);
+    const films = this.filmss.slice(this.#renderedFilmCount, newRenderedFilmCount);
 
-    if(this.#renderedFilmCount >= this.#boardFilms.length) {
+    if(this.#renderedFilmCount >= filmCount) {
       remove(this.#loadMoreButtonComponent);
     }
   };
@@ -63,45 +77,30 @@ export default class BoardPresenter {
   };
 
   #handleFilmChange = (updatedFilm) => {
-    this.#boardFilms = updateItem(this.#boardFilms, updatedFilm);
-    this.#sourcedBoardFilms = updateItem(this.#sourcedBoardFilms, updatedFilm);
-    this.#filmsPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
+    // this.#boardFilms = updateItem(this.#boardFilms, updatedFilm);
+    // this.#sourcedBoardFilms = updateItem(this.#sourcedBoardFilms, updatedFilm);
+    // this.#filmsPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
   };
 
   #handleTopRatedFilmChange = (updatedFilm) => {
-    this.#boardFilms = updateItem(this.#boardFilms, updatedFilm);
-    this.#sourcedBoardFilms = updateItem(this.#sourcedBoardFilms, updatedFilm);
-    this.#filmsTopRatedPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
+    // this.#boardFilms = updateItem(this.#boardFilms, updatedFilm);
+    // this.#sourcedBoardFilms = updateItem(this.#sourcedBoardFilms, updatedFilm);
+    // this.#filmsTopRatedPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
   };
 
   #handleMostCommentedFilmChange = (updatedFilm) => {
-    this.#boardFilms = updateItem(this.#boardFilms, updatedFilm);
-    this.#sourcedBoardFilms = updateItem(this.#sourcedBoardFilms, updatedFilm);
-    this.#filmsMostCommentedPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
+    // this.#boardFilms = updateItem(this.#boardFilms, updatedFilm);
+    // this.#sourcedBoardFilms = updateItem(this.#sourcedBoardFilms, updatedFilm);
+    // this.#filmsMostCommentedPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
   };
-
-  #sortFilms(sortType) {
-    this.#currentSortType = sortType;
-
-    switch (this.#currentSortType) {
-      case SortType.DATE:
-        this.#boardFilms.sort(sortByDate);
-        break;
-      case SortType.RATING:
-        this.#boardFilms.sort(sortByRating);
-        break;
-      default:
-        this.#boardFilms = [...this.#sourcedBoardFilms];
-    }
-  }
 
   #handleSortTypeChange = (sortType) => {
     if (this.#currentSortType === sortType) {
       return;
     }
 
+    this.#currentSortType = sortType;
     this.#clearFilmList();
-    this.#sortFilms(sortType);
     this.#renderFilmList();
   };
 
@@ -149,8 +148,8 @@ export default class BoardPresenter {
     this.#filmsMostCommentedPresenter.set(film.id, mostCommentedPresenter);
   }
 
-  #renderFilms(from, to) {
-    this.#boardFilms.slice(from, to).forEach((film) => this.#renderFilm(film));
+  #renderFilms(films) {
+    films.forEach((film) => this.#renderFilm(film));
   }
 
   #renderTopRatedFilms() {
@@ -192,9 +191,12 @@ export default class BoardPresenter {
   }
 
   #renderFilmList() {
-    this.#renderFilms(0, Math.min(this.#boardFilms.length, FILM_COUNT_PER_STEP));
+    const filmCount = this.films.length;
+    const films = this.films.slice(0, Math.min(filmCount, FILM_COUNT_PER_STEP));
 
-    if (this.#boardFilms.length > FILM_COUNT_PER_STEP) {
+    this.#renderFilms(films);
+
+    if (filmCount > FILM_COUNT_PER_STEP) {
       this.#renderLoadMoreButton();
     }
 
@@ -208,7 +210,7 @@ export default class BoardPresenter {
     render(this.#sectionTopRatedComponent, this.#boardComponent.element);
     render(this.#sectionMostCommentedComponent, this.#boardComponent.element);
 
-    if (this.#boardFilms.length === 0) {
+    if (this.films.length === 0) {
       this.#renderNoFilms();
       return;
     }

@@ -51,11 +51,11 @@ function createCommentsTemplate(currentComments, commentsModel) {
   }).join(' ');
 }
 
-function createEmotionTemplate(emotions) {
+function createEmotionTemplate(checkedEmoji, emotions) {
   return emotions.map((emotion) => `
-    <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emotion}" value="${emotion}">
+    <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emotion}" value="${emotion}" ${checkedEmoji === emotion ? 'checked' : ''} >
       <label class="film-details__emoji-label" for="emoji-${emotion}">
-          <img src="./images/emoji/${emotion}.png" width="30" height="30" alt="emoji">
+          <img id="${emotion}" src="./images/emoji/${emotion}.png" width="30" height="30" alt="emoji">
       </label>
   `).join(' ');
 }
@@ -158,8 +158,7 @@ function createFilmDetailsTemplate(film, commentsModel) {
 
         <form class="film-details__new-comment" action="" method="get">
           <div class="film-details__add-emoji-label">
-
-            ${checkedEmoji ? `<img src="${checkedEmoji}" width="55" height="55" alt="emoji-${checkedEmoji}">` : ''}
+            ${checkedEmoji ? `<img src="./images/emoji/${checkedEmoji}.png" width="55" height="55" alt="emoji-${checkedEmoji}">` : ''}
           </div>
 
           <label class="film-details__comment-label">
@@ -167,7 +166,7 @@ function createFilmDetailsTemplate(film, commentsModel) {
           </label>
 
           <div class="film-details__emoji-list">
-          ${createEmotionTemplate(EMOTIONS)}
+            ${createEmotionTemplate(checkedEmoji, EMOTIONS)}
           </div>
         </form>
       </section>
@@ -186,7 +185,7 @@ export default class FilmDetailsView extends AbstractStatefulView{
 
   constructor({film, comments, onDetailsClose, onWatchlistClick, onWatchedClick, onFavoriteClick}) {
     super();
-    this._setState(FilmDetailsView.parseFilmToState(film, comments));
+    this._setState(FilmDetailsView.parseFilmToState(film));
     this.#comments = comments;
     this.#handleDetailsClose = onDetailsClose;
     this.#handleWatchlistClick = onWatchlistClick;
@@ -196,7 +195,6 @@ export default class FilmDetailsView extends AbstractStatefulView{
   }
 
   get template() {
-    console.log(this._state)
     return createFilmDetailsTemplate(this._state, this.#comments);
   }
 
@@ -237,11 +235,10 @@ export default class FilmDetailsView extends AbstractStatefulView{
   };
 
   #emojiClickHandler = (evt) => {
-    console.log(evt.target.src)
     const currentScrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this.updateElement({
-      checkedEmoji: evt.target.src,
+      checkedEmoji: evt.target.id,
     });
     this.element.scroll(0, currentScrollPosition);
   };
