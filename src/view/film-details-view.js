@@ -176,7 +176,6 @@ function createFilmDetailsTemplate(film, commentsModel) {
 }
 
 export default class FilmDetailsView extends AbstractStatefulView{
-  #film = null;
   #comments = null;
   #handleDetailsClose = null;
   #handleWatchlistClick = null;
@@ -214,7 +213,8 @@ export default class FilmDetailsView extends AbstractStatefulView{
   };
 
   #detailsCloseHandler = (evt) => {
-    evt.preventDefault();
+    evt.preventDefault(this._state);
+    console.log(this._state)
     this.#handleDetailsClose(FilmDetailsView.parseStateToFilm(this._state));
     document.querySelector('body').classList.remove('hide-overflow');
   };

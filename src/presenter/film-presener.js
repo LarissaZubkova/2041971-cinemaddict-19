@@ -1,7 +1,7 @@
 import {render, remove, replace} from '../framework/render.js';
 import FilmView from '../view/film-view.js';
 import FilmDetailsView from '../view/film-details-view.js';
-import {Mode} from '../consts.js';
+import {Mode, UserAction, UpdateType} from '../consts.js';
 
 export default class FilmPrsenter {
   #filmListContainer = null;
@@ -100,33 +100,42 @@ export default class FilmPrsenter {
   };
 
   #handleWatchlistClick = () => {
-    this.#handleDataChange({
-      ...this.#film,
-      userDetails: {
-        ...this.#film.userDetails,
-        watchlist: !this.#film.userDetails.watchlist,
-      }
-    });
+    this.#handleDataChange(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      {
+        ...this.#film,
+        userDetails: {
+          ...this.#film.userDetails,
+          watchlist: !this.#film.userDetails.watchlist,
+        }
+      });
   };
 
   #handleWatchedClick = () => {
-    this.#handleDataChange({
-      ...this.#film,
-      userDetails: {
-        ...this.#film.userDetails,
-        alreadyWatched: !this.#film.userDetails.alreadyWatched,
-      }
-    });
+    this.#handleDataChange(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      {
+        ...this.#film,
+        userDetails: {
+          ...this.#film.userDetails,
+          alreadyWatched: !this.#film.userDetails.alreadyWatched,
+        }
+      });
   };
 
   #handleFavoriteClick = () => {
-    this.#handleDataChange({
-      ...this.#film,
-      userDetails: {
-        ...this.#film.userDetails,
-        favorite: !this.#film.userDetails.favorite,
-      }
-    });
+    this.#handleDataChange(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      {
+        ...this.#film,
+        userDetails: {
+          ...this.#film.userDetails,
+          favorite: !this.#film.userDetails.favorite,
+        }
+      });
   };
 
   #handleDetailsClose = (film) => {

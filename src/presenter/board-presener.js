@@ -4,10 +4,9 @@ import FilmsListView from '../view/films-list-view.js';
 import SortView from '../view/sort-view.js';
 import LoadMoreButtonView from '../view/load-more-button-view.js';
 import EmptyListView from '../view/empty-list-view.js';
-import {FILM_COUNT_PER_STEP, Titles, SortType} from '../consts.js';
+import {FILM_COUNT_PER_STEP, Titles, SortType, UpdateType, UserAction} from '../consts.js';
 import {isExtra, getTopRatedFilms, getMostCommentedFilms, sortByDate, sortByRating} from '../utils/film.js';
 import FilmPrsenter from './film-presener.js';
-import {updateItem} from '../utils/common.js';
 
 export default class BoardPresenter {
   #boardContainer = null;
@@ -22,9 +21,7 @@ export default class BoardPresenter {
   #loadMoreButtonComponent = null;
   #sortComponent = null;
   #noFilmComponent = new EmptyListView();
-  //#sourcedBoardFilms = [];
 
-  //#boardFilms = [];
   #boardComments = [];
   #renderedFilmCount = FILM_COUNT_PER_STEP;
   #filmsPresenter = new Map();
@@ -37,6 +34,9 @@ export default class BoardPresenter {
     this.#popupContainer = popupContainer;
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
+
+    this.#filmsModel.addObserver(this.#handleModelEvent);
+    this.#commentsModel.addObserver(this.#handleModelEvent);
   }
 
   get films() {
@@ -62,8 +62,11 @@ export default class BoardPresenter {
   #handleLoadMoreButtonClick = () => {
     const filmCount = this.films.length;
 
-    const newRenderedFilmCount = Math.min(filmsCount, this.#renderedFilmCount + FILM_COUNT_PER_STEP);
+    const newRenderedFilmCount = Math.min(filmCount, this.#renderedFilmCount + FILM_COUNT_PER_STEP);
     const films = this.filmss.slice(this.#renderedFilmCount, newRenderedFilmCount);
+
+    this.#renderFilms(films);
+    this.#renderedFilmCount = newRenderedFilmCount;
 
     if(this.#renderedFilmCount >= filmCount) {
       remove(this.#loadMoreButtonComponent);
@@ -79,19 +82,49 @@ export default class BoardPresenter {
   #handleFilmChange = (updatedFilm) => {
     // this.#boardFilms = updateItem(this.#boardFilms, updatedFilm);
     // this.#sourcedBoardFilms = updateItem(this.#sourcedBoardFilms, updatedFilm);
-    // this.#filmsPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
+    this.#filmsPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
   };
 
   #handleTopRatedFilmChange = (updatedFilm) => {
     // this.#boardFilms = updateItem(this.#boardFilms, updatedFilm);
     // this.#sourcedBoardFilms = updateItem(this.#sourcedBoardFilms, updatedFilm);
-    // this.#filmsTopRatedPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
+    this.#filmsTopRatedPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
   };
 
   #handleMostCommentedFilmChange = (updatedFilm) => {
     // this.#boardFilms = updateItem(this.#boardFilms, updatedFilm);
     // this.#sourcedBoardFilms = updateItem(this.#sourcedBoardFilms, updatedFilm);
-    // this.#filmsMostCommentedPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
+    this.#filmsMostCommentedPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
+  };
+
+  #handleViewAction = (actionType, updateType, update) => {
+    switch (actionType) {
+      case UserAction.UPDATE_FILM:
+        this.#filmsModel.updateFilm(updateType, update);
+        break;
+      case UserAction.ADD_COMMENT:
+        this.#commentsModel.addComment(updateType, update);
+        break;
+      case UserAction.DELETE_COMMENT:
+        this.#commentsModel.deleteComment(updateType, update);
+        break;
+    }
+  };
+
+  #handleModelEvent = (updateType, film) => {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        // - обновить часть списка (например, когда поменялось описание)
+        this.#filmsPresenter.get(film.id).init(film, this.#boardComments);
+        break;
+      case UpdateType.MINOR:
+        // - обновить список (например, когда задача ушла в архив)
+        break;
+      case UpdateType.MAJOR:
+        // - обновить всю доску (например, при переключении фильтра)
+        break;
+    }
+
   };
 
   #handleSortTypeChange = (sortType) => {
@@ -116,7 +149,7 @@ export default class BoardPresenter {
     const filmPresenter = new FilmPrsenter({
       filmListContainer: this.#filmsListComponent.filmListContainer,
       popupContainer: this.#popupContainer,
-      onDataChange: this.#handleFilmChange,
+      onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange,
     });
 
@@ -153,12 +186,12 @@ export default class BoardPresenter {
   }
 
   #renderTopRatedFilms() {
-    const topRatedFilms = getTopRatedFilms(this.#boardFilms);
+    const topRatedFilms = getTopRatedFilms(this.films);
     topRatedFilms.forEach((film) => this.#renderTopRatedFilm(film));
   }
 
   #renderMostCommentedFilms() {
-    const mostCommentedFilms = getMostCommentedFilms(this.#boardFilms);
+    const mostCommentedFilms = getMostCommentedFilms(this.films);
     mostCommentedFilms.forEach((film) => this.#renderMostCommentedFilm(film));
   }
 
