@@ -14,7 +14,7 @@ const commentsModel = new CommentsModel();
 
 const boardPresenter = new BoardPresenter({
   boardContainer: siteMainElement,
-  popupContainer: bodyElement,
+  bodyElement: bodyElement,
   filmsModel,
   commentsModel,
 });

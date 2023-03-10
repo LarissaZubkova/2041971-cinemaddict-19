@@ -1,9 +1,16 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {humanizeFilmDate, formatDuration} from '../utils/film.js';
-import {DateFormat} from '../consts.js';
+import {DateFormat, MAX_DESCRIPTION_LENGTH} from '../consts.js';
 
 function getControlsClassName(control) {
   return control ? 'film-card__controls-item--active' : '';
+}
+
+function getDescription(description) {
+  if (description.length > MAX_DESCRIPTION_LENGTH) {
+    return `${description.slice(0, MAX_DESCRIPTION_LENGTH)}...`;
+  }
+  return description;
 }
 
 function createFilmTemplate(film) {
@@ -20,10 +27,10 @@ function createFilmTemplate(film) {
     <p class="film-card__info">
       <span class="film-card__year">${year}</span>
       <span class="film-card__duration">${formatDuration(duration)}</span>
-      <span class="film-card__genre">${genre}</span>
+      <span class="film-card__genre">${genre[0]}</span>
     </p>
     <img src="${poster}" alt="" class="film-card__poster">
-    <p class="film-card__description">${description}</p>
+    <p class="film-card__description">${getDescription(description)}</p>
     <span class="film-card__comments">${comments.length} comments</span>
   </a>
   <div class="film-card__controls">

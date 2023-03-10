@@ -42,9 +42,9 @@ function createCommentsTemplate(currentComments, commentsModel) {
        <div>
         <p class="film-details__comment-text">${comment}</p>
         <p class="film-details__comment-info">
-        <span class="film-details__comment-author">${author}</span>
-        <span class="film-details__comment-day">${getCommentDate(date)}</span>
-        <button class="film-details__comment-delete">Delete</button>
+          <span class="film-details__comment-author">${author}</span>
+          <span class="film-details__comment-day">${getCommentDate(date)}</span>
+          <button class="film-details__comment-delete" id="${commentForFilm.id}">Delete</button>
     </p>
   </div>
 </li>`;
@@ -129,7 +129,7 @@ function createFilmDetailsTemplate(film, commentsModel) {
               <td class="film-details__cell">${release.releaseCountry}</td>
             </tr>
             <tr class="film-details__row">
-              <td class="film-details__term">Genres</td>
+              <td class="film-details__term">${genre.length > 1 ? 'Genres' : 'Genre'}</td>
               <td class="film-details__cell">
                 ${createGenreTemplate(genre)}
               </td>
@@ -178,15 +178,17 @@ function createFilmDetailsTemplate(film, commentsModel) {
 export default class FilmDetailsView extends AbstractStatefulView{
   #comments = null;
   #handleDetailsClose = null;
+  #handleDeleteClick = null;
   #handleWatchlistClick = null;
   #handleWatchedClick = null;
   #handleFavoriteClick = null;
 
-  constructor({film, comments, onDetailsClose, onWatchlistClick, onWatchedClick, onFavoriteClick}) {
+  constructor({film, comments, onDetailsClose, onWatchlistClick, onWatchedClick, onFavoriteClick, onDeleteClick}) {
     super();
     this._setState(FilmDetailsView.parseFilmToState(film));
     this.#comments = comments;
     this.#handleDetailsClose = onDetailsClose;
+    this.#handleDeleteClick = onDeleteClick;
     this.#handleWatchlistClick = onWatchlistClick;
     this.#handleWatchedClick = onWatchedClick;
     this.#handleFavoriteClick = onFavoriteClick;
@@ -204,6 +206,7 @@ export default class FilmDetailsView extends AbstractStatefulView{
     this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#favoriteClickHandler);
     this.element.querySelector('.film-details__emoji-list').addEventListener('click', this.#emojiClickHandler);
     this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#commentInputHandler);
+    this.element.querySelectorAll('.film-details__comment-delete').forEach((deleteButton) => deleteButton.addEventListener('click', this.#commentDeleteClickHandler));
   }
 
   #commentInputHandler = (evt) => {
@@ -214,7 +217,6 @@ export default class FilmDetailsView extends AbstractStatefulView{
 
   #detailsCloseHandler = (evt) => {
     evt.preventDefault(this._state);
-    console.log(this._state)
     this.#handleDetailsClose(FilmDetailsView.parseStateToFilm(this._state));
     document.querySelector('body').classList.remove('hide-overflow');
   };
@@ -241,6 +243,13 @@ export default class FilmDetailsView extends AbstractStatefulView{
       checkedEmoji: evt.target.id,
     });
     this.element.scroll(0, currentScrollPosition);
+  };
+
+  #commentDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    console.log(evt.target.id)
+    const deletedComment = this.#comments.find((comment) => evt.target.id === comment.id);
+    this.#handleDeleteClick(deletedComment);
   };
 
   static parseFilmToState(film) {

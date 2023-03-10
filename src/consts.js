@@ -6,6 +6,8 @@ const DateFormat = {
 
 const FILM_COUNT_PER_STEP = 5;
 
+const MAX_DESCRIPTION_LENGTH = 140;
+
 const FilterType = {
   ALL: 'All movies',
   WATCHLIST: 'Watchlist',
@@ -70,4 +72,5 @@ export {
   RALATIVE_TIME,
   UserAction,
   UpdateType,
+  MAX_DESCRIPTION_LENGTH,
 };

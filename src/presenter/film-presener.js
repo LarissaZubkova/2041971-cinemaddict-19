@@ -5,7 +5,7 @@ import {Mode, UserAction, UpdateType} from '../consts.js';
 
 export default class FilmPrsenter {
   #filmListContainer = null;
-  #popupContainer = null;
+  #bodyElement = null;
   #handleDataChange = null;
   #handleModeChange = null;
 
@@ -16,9 +16,9 @@ export default class FilmPrsenter {
   #comments = null;
   #mode = Mode.DEFAULT;
 
-  constructor({filmListContainer, popupContainer, onDataChange, onModeChange}) {
+  constructor({filmListContainer, bodyElement, onDataChange, onModeChange}) {
     this.#filmListContainer = filmListContainer;
-    this.#popupContainer = popupContainer;
+    this.#bodyElement = bodyElement;
     this.#handleDataChange = onDataChange;
     this.#handleModeChange = onModeChange;
   }
@@ -42,6 +42,7 @@ export default class FilmPrsenter {
       film: this.#film,
       comments: this.#comments,
       onDetailsClose: this.#handleDetailsClose,
+      onDeleteClick: this.#handleDeleteClick,
       onWatchlistClick: this.#handleWatchlistClick,
       onWatchedClick: this.#handleWatchedClick,
       onFavoriteClick: this.#handleFavoriteClick,
@@ -76,7 +77,7 @@ export default class FilmPrsenter {
   }
 
   #replaceCardToForm() {
-    this.#popupContainer.append(this.#filmDetailsComponent.element);
+    this.#bodyElement.append(this.#filmDetailsComponent.element);
     document.addEventListener('keydown', this.#escKeyDownHandler);
     this.#handleModeChange();
     this.#mode = Mode.DETAILS;
@@ -141,5 +142,14 @@ export default class FilmPrsenter {
   #handleDetailsClose = (film) => {
     this.#replaceFormToCard();
     this.#handleDataChange(film);
+  };
+
+  #handleDeleteClick = (comment) => {
+    console.log(1)
+    this.#handleDataChange(
+      UserAction.DELETE_COMMENT,
+      UpdateType.PATCH,
+      comment,
+    );
   };
 }
