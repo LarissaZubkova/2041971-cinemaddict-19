@@ -111,10 +111,11 @@ export default class BoardPresenter {
     }
   };
 
-  #handleModelEvent = (updateType, film) => {
+  #handleModelEvent = (updateType, data) => {
+    console.log(data)
     switch (updateType) {
       case UpdateType.PATCH:
-        this.#filmsPresenter.get(film.id).init(film, this.#boardComments);
+        this.#filmsPresenter.get(data.id).init(data, this.#boardComments);
         break;
       case UpdateType.MINOR:
         this.#clearBoard();

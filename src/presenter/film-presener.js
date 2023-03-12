@@ -42,10 +42,10 @@ export default class FilmPrsenter {
       film: this.#film,
       comments: this.#comments,
       onDetailsClose: this.#handleDetailsClose,
-      onDeleteClick: this.#handleDeleteClick,
       onWatchlistClick: this.#handleWatchlistClick,
       onWatchedClick: this.#handleWatchedClick,
       onFavoriteClick: this.#handleFavoriteClick,
+      onDeleteClick: this.#handleDeleteClick,
     });
 
     if (prevFilmComponent === null || prevFilmDetailsComponent === null) {
@@ -145,7 +145,7 @@ export default class FilmPrsenter {
   };
 
   #handleDeleteClick = (comment) => {
-    console.log(1)
+    console.log(comment)
     this.#handleDataChange(
       UserAction.DELETE_COMMENT,
       UpdateType.PATCH,
