@@ -79,23 +79,17 @@ export default class BoardPresenter {
     this.#filmsMostCommentedPresenter.forEach((presenter) => presenter.resetView());
   };
 
-  #handleFilmChange = (updatedFilm) => {
-    // this.#boardFilms = updateItem(this.#boardFilms, updatedFilm);
-    // this.#sourcedBoardFilms = updateItem(this.#sourcedBoardFilms, updatedFilm);
-    this.#filmsPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
-  };
+  // #handleFilmChange = (updatedFilm) => {
+  //   this.#filmsPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
+  // };
 
-  #handleTopRatedFilmChange = (updatedFilm) => {
-    // this.#boardFilms = updateItem(this.#boardFilms, updatedFilm);
-    // this.#sourcedBoardFilms = updateItem(this.#sourcedBoardFilms, updatedFilm);
-    this.#filmsTopRatedPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
-  };
+  // #handleTopRatedFilmChange = (updatedFilm) => {
+  //   this.#filmsTopRatedPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
+  // };
 
-  #handleMostCommentedFilmChange = (updatedFilm) => {
-    // this.#boardFilms = updateItem(this.#boardFilms, updatedFilm);
-    // this.#sourcedBoardFilms = updateItem(this.#sourcedBoardFilms, updatedFilm);
-    this.#filmsMostCommentedPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
-  };
+  // #handleMostCommentedFilmChange = (updatedFilm) => {
+  //   this.#filmsMostCommentedPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
+  // };
 
   #handleViewAction = (actionType, updateType, update) => {
     switch (actionType) {
@@ -115,7 +109,15 @@ export default class BoardPresenter {
     console.log(data)
     switch (updateType) {
       case UpdateType.PATCH:
-        this.#filmsPresenter.get(data.id).init(data, this.#boardComments);
+        if (this.#filmsPresenter.get(data.id)) {
+          this.#filmsPresenter.get(data.id).init(data, this.#boardComments);
+        }
+        if (this.#filmsTopRatedPresenter.get(data.id)){
+          this.#filmsTopRatedPresenter.get(data.id).init(data, this.#boardComments);
+        }
+        if (this.#filmsMostCommentedPresenter.get(data.id)){
+          this.#filmsMostCommentedPresenter.get(data.id).init(data, this.#boardComments);
+        }
         break;
       case UpdateType.MINOR:
         this.#clearBoard();
@@ -164,7 +166,7 @@ export default class BoardPresenter {
     const topRatedPresenter = new FilmPrsenter({
       filmListContainer: this.#sectionTopRatedComponent.element.querySelector('.films-list__container'),
       bodyElement: this.#bodyElement,
-      onDataChange: this.#handleTopRatedFilmChange,
+      onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange,
     });
 
@@ -176,7 +178,7 @@ export default class BoardPresenter {
     const mostCommentedPresenter = new FilmPrsenter({
       filmListContainer: this.#sectionMostCommentedComponent.element.querySelector('.films-list__container'),
       bodyElement: this.#bodyElement,
-      onDataChange: this.#handleMostCommentedFilmChange,
+      onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange,
     });
 
@@ -212,32 +214,6 @@ export default class BoardPresenter {
     });
 
     render(this.#loadMoreButtonComponent, this.#filmsListComponent.element);
-  }
-
-  #clearFilmList() {
-    this.#filmsPresenter.forEach((presenter) => presenter.destroy());
-    this.#filmsTopRatedPresenter.forEach((presenter) => presenter.destroy());
-    this.#filmsMostCommentedPresenter.forEach((presenter) => presenter.destroy());
-    this.#filmsPresenter.clear();
-    this.#filmsTopRatedPresenter.clear();
-    this.#filmsMostCommentedPresenter.clear();
-    this.#renderedFilmCount = FILM_COUNT_PER_STEP;
-
-    remove(this.#loadMoreButtonComponent);
-  }
-
-  #renderFilmList() {
-    const filmCount = this.films.length;
-    const films = this.films.slice(0, Math.min(filmCount, FILM_COUNT_PER_STEP));
-
-    this.#renderFilms(films);
-
-    if (filmCount > FILM_COUNT_PER_STEP) {
-      this.#renderLoadMoreButton();
-    }
-
-    this.#renderTopRatedFilms();
-    this.#renderMostCommentedFilms();
   }
 
   #clearBoard({resetRenderedFilmCount = false, resetSortType = false} = {}) {
@@ -280,7 +256,6 @@ export default class BoardPresenter {
     }
 
     this.#renderSort();
-    //this.#renderFilmList();
     this.#renderFilms(films.slice(0, Math.min(filmCount, this.#renderedFilmCount)));
 
     if (filmCount > this.#renderedFilmCount) {

@@ -206,14 +206,13 @@ export default class FilmDetailsView extends AbstractStatefulView{
     this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#favoriteClickHandler);
     this.element.querySelector('.film-details__emoji-list').addEventListener('click', this.#emojiClickHandler);
     this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#commentInputHandler);
-    //this.element.querySelectorAll('.film-details__comment-delete').forEach((deleteButton) => deleteButton.addEventListener('click', this.#commentDeleteClickHandler));
+    this.element.querySelectorAll('.film-details__comment-delete').forEach((deleteButton) => deleteButton.addEventListener('click', this.#commentDeleteClickHandler));
   }
 
   #commentInputHandler = (evt) => {
     this._setState({
       userComment: evt.target.value
     });
-    console.log(this._state)
   };
 
   #detailsCloseHandler = (evt) => {
@@ -224,7 +223,14 @@ export default class FilmDetailsView extends AbstractStatefulView{
 
   #watchlistClickHandler = (evt) => {
     evt.preventDefault();
-    this.#handleWatchlistClick();
+    const updatedFilm = {
+      ...this._state,
+      userDetails: {
+        ...this._state.userDetails,
+        watchlist: !this._state.userDetails.watchlist,
+      }
+    };
+    this.#handleWatchlistClick(updatedFilm);
   };
 
   #watchedClickHandler = (evt) => {
@@ -246,11 +252,11 @@ export default class FilmDetailsView extends AbstractStatefulView{
     this.element.scroll(0, currentScrollPosition);
   };
 
-  // #commentDeleteClickHandler = (evt) => {
-  //   evt.preventDefault();
-  //   const deletedComment = this.#comments.find((comment) => Number(evt.target.id) === comment.id);
-  //   this.#handleDeleteClick(deletedComment);
-  // };
+  #commentDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    //const deletedComment = this.#comments.find((comment) => Number(evt.target.id) === comment.id);
+    this.#handleDeleteClick(evt.target.id);
+  };
 
   static parseCommentsToState(film) {
     return {

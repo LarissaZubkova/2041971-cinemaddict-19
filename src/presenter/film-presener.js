@@ -100,17 +100,12 @@ export default class FilmPrsenter {
     this.#replaceCardToForm();
   };
 
-  #handleWatchlistClick = () => {
+  #handleWatchlistClick = (updatedFilm) => {
     this.#handleDataChange(
       UserAction.UPDATE_FILM,
       UpdateType.PATCH,
-      {
-        ...this.#film,
-        userDetails: {
-          ...this.#film.userDetails,
-          watchlist: !this.#film.userDetails.watchlist,
-        }
-      });
+      updatedFilm,
+    );
   };
 
   #handleWatchedClick = () => {
@@ -144,12 +139,11 @@ export default class FilmPrsenter {
     this.#handleDataChange(film);
   };
 
-  #handleDeleteClick = (comment) => {
-    console.log(comment)
+  #handleDeleteClick = (commentId) => {
     this.#handleDataChange(
       UserAction.DELETE_COMMENT,
-      UpdateType.PATCH,
-      comment,
+      UpdateType.MINOR,
+      commentId,
     );
   };
 }
