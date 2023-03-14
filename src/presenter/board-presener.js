@@ -79,18 +79,6 @@ export default class BoardPresenter {
     this.#filmsMostCommentedPresenter.forEach((presenter) => presenter.resetView());
   };
 
-  // #handleFilmChange = (updatedFilm) => {
-  //   this.#filmsPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
-  // };
-
-  // #handleTopRatedFilmChange = (updatedFilm) => {
-  //   this.#filmsTopRatedPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
-  // };
-
-  // #handleMostCommentedFilmChange = (updatedFilm) => {
-  //   this.#filmsMostCommentedPresenter.get(updatedFilm.id).init(updatedFilm, this.#boardComments);
-  // };
-
   #handleViewAction = (actionType, updateType, update) => {
     switch (actionType) {
       case UserAction.UPDATE_FILM:
@@ -106,7 +94,6 @@ export default class BoardPresenter {
   };
 
   #handleModelEvent = (updateType, data) => {
-    console.log(data)
     switch (updateType) {
       case UpdateType.PATCH:
         if (this.#filmsPresenter.get(data.id)) {

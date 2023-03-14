@@ -59,6 +59,7 @@ export default class FilmPrsenter {
 
     if (this.#mode === Mode.DETAILS) {
       replace(this.#filmDetailsComponent, prevFilmDetailsComponent);
+      return;
     }
 
     remove(prevFilmComponent);
@@ -100,18 +101,23 @@ export default class FilmPrsenter {
     this.#replaceCardToForm();
   };
 
-  #handleWatchlistClick = (updatedFilm) => {
+  #handleWatchlistClick = () => {
     this.#handleDataChange(
       UserAction.UPDATE_FILM,
-      UpdateType.PATCH,
-      updatedFilm,
-    );
+      UpdateType.MINOR,
+      {
+        ...this.#film,
+        userDetails: {
+          ...this.#film.userDetails,
+          watchlist: !this.#film.userDetails.watchlist,
+        }
+      });
   };
 
   #handleWatchedClick = () => {
     this.#handleDataChange(
       UserAction.UPDATE_FILM,
-      UpdateType.PATCH,
+      UpdateType.MINOR,
       {
         ...this.#film,
         userDetails: {
@@ -134,9 +140,9 @@ export default class FilmPrsenter {
       });
   };
 
-  #handleDetailsClose = (film) => {
+  #handleDetailsClose = () => {
     this.#replaceFormToCard();
-    this.#handleDataChange(film);
+    this.#handleDataChange();
   };
 
   #handleDeleteClick = (commentId) => {

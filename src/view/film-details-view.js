@@ -176,6 +176,7 @@ function createFilmDetailsTemplate(film, commentsModel) {
 }
 
 export default class FilmDetailsView extends AbstractStatefulView{
+  #film = null;
   #comments = null;
   #handleDetailsClose = null;
   #handleDeleteClick = null;
@@ -185,52 +186,40 @@ export default class FilmDetailsView extends AbstractStatefulView{
 
   constructor({film, comments, onDetailsClose, onWatchlistClick, onWatchedClick, onFavoriteClick, onDeleteClick}) {
     super();
+    this.#film = film;
     this.#comments = comments;
-    this._setState(FilmDetailsView.parseCommentsToState(film));
+    this._setState(FilmDetailsView.parseCommentsToState());
     this.#handleDetailsClose = onDetailsClose;
     this.#handleWatchlistClick = onWatchlistClick;
     this.#handleWatchedClick = onWatchedClick;
     this.#handleFavoriteClick = onFavoriteClick;
     this.#handleDeleteClick = onDeleteClick;
-    this._restoreHandlers();
-  }
-
-  get template() {
-    return createFilmDetailsTemplate(this._state, this.#comments);
-  }
-
-  _restoreHandlers() {
     this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#detailsCloseHandler);
     this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchlistClickHandler);
     this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#watchedClickHandler);
     this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#favoriteClickHandler);
-    this.element.querySelector('.film-details__emoji-list').addEventListener('click', this.#emojiClickHandler);
-    this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#commentInputHandler);
     this.element.querySelectorAll('.film-details__comment-delete').forEach((deleteButton) => deleteButton.addEventListener('click', this.#commentDeleteClickHandler));
+    this._restoreHandlers();
   }
 
-  #commentInputHandler = (evt) => {
-    this._setState({
-      userComment: evt.target.value
-    });
-  };
+  get template() {
+    return createFilmDetailsTemplate(this.#film, this.#comments);
+  }
+
+  _restoreHandlers() {
+    this.element.querySelector('.film-details__emoji-list').addEventListener('click', this.#emojiClickHandler);
+    this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#commentInputHandler);
+  }
 
   #detailsCloseHandler = (evt) => {
     evt.preventDefault();
-    this.#handleDetailsClose(FilmDetailsView.parseStateToFilm(this._state));
+    this.#handleDetailsClose();
     document.querySelector('body').classList.remove('hide-overflow');
   };
 
   #watchlistClickHandler = (evt) => {
     evt.preventDefault();
-    const updatedFilm = {
-      ...this._state,
-      userDetails: {
-        ...this._state.userDetails,
-        watchlist: !this._state.userDetails.watchlist,
-      }
-    };
-    this.#handleWatchlistClick(updatedFilm);
+    this.#handleWatchlistClick();
   };
 
   #watchedClickHandler = (evt) => {
@@ -252,15 +241,20 @@ export default class FilmDetailsView extends AbstractStatefulView{
     this.element.scroll(0, currentScrollPosition);
   };
 
+  #commentInputHandler = (evt) => {
+    this._setState({
+      userComment: evt.target.value
+    });
+  };
+
   #commentDeleteClickHandler = (evt) => {
     evt.preventDefault();
     //const deletedComment = this.#comments.find((comment) => Number(evt.target.id) === comment.id);
     this.#handleDeleteClick(evt.target.id);
   };
 
-  static parseCommentsToState(film) {
+  static parseCommentsToState() {
     return {
-      ...film,
       checkedEmoji: null,
       userComment: null,
     };
