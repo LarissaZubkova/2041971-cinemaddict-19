@@ -19,8 +19,8 @@ const filmsModel = new FilmsModel({
 });
 const commentsModel = new CommentsModel({
   commentsApiService: new CommentsApiService(END_POINT, AUTHORIZATION),
-  filmsModel,
 });
+
 const filterModel = new FilterModel();
 
 const boardPresenter = new BoardPresenter({
@@ -40,5 +40,6 @@ const filterPresenter = new FilterPresenter({
 render(new ProfileView(), siteHeaderElement);
 
 filterPresenter.init();
+
 boardPresenter.init();
 filmsModel.init();

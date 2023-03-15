@@ -4,6 +4,7 @@ import FilmsListView from '../view/films-list-view.js';
 import SortView from '../view/sort-view.js';
 import LoadMoreButtonView from '../view/load-more-button-view.js';
 import EmptyListView from '../view/empty-list-view.js';
+import LoadingView from '../view/loading-view.js';
 import {FILM_COUNT_PER_STEP, Titles, SortType, UpdateType, UserAction, FilterType} from '../consts.js';
 import {isExtra, getTopRatedFilms, getMostCommentedFilms, sortByDate, sortByRating} from '../utils/film.js';
 import {filter} from '../utils/filter.js';
@@ -18,6 +19,7 @@ export default class BoardPresenter {
 
   #boardComponent = new BoardView();
   #filmsListComponent = new FilmsListView();
+  #loadingComponent = new LoadingView();
   #sectionTopRatedComponent = new FilmsListView(isExtra, Titles.TOP_RATED);
   #sectionMostCommentedComponent = new FilmsListView(isExtra, Titles.MOST_COMMENTED);
   #loadMoreButtonComponent = null;
@@ -31,6 +33,7 @@ export default class BoardPresenter {
   #filmsMostCommentedPresenter = new Map();
   #currentSortType = SortType.DEFAULT;
   #filterType = FilterType.ALL;
+  #isLoading = true;
 
   constructor({boardContainer, bodyElement, filmsModel, commentsModel, filterModel}) {
     this.#boardContainer = boardContainer;
@@ -40,7 +43,7 @@ export default class BoardPresenter {
     this.#filterModel = filterModel;
 
     this.#filmsModel.addObserver(this.#handleModelEvent);
-    this.#commentsModel.addObserver(this.#handleModelEvent);
+    //this.#commentsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
@@ -60,7 +63,7 @@ export default class BoardPresenter {
   }
 
   get comments() {
-    return this.#commentsModel.comments;
+    return this.#commentsModel;
   }
 
   init() {
@@ -199,6 +202,14 @@ export default class BoardPresenter {
   #renderMostCommentedFilms() {
     const mostCommentedFilms = getMostCommentedFilms(this.films);
     mostCommentedFilms.forEach((film) => this.#renderMostCommentedFilm(film));
+  }
+
+  #renderLoading() {
+    remove(this.#filmsListComponent);
+    remove(this.#sectionTopRatedComponent);
+    remove(this.#sectionMostCommentedComponent);
+
+    render(this.#loadingComponent, this.#boardComponent.element, RenderPosition.AFTERBEGIN);
   }
 
   #renderNoFilms() {

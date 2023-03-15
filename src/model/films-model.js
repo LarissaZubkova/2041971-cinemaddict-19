@@ -1,20 +1,13 @@
 import Observable from '../framework/observable.js';
 import {UpdateType} from '../consts.js';
-// import {generateFilm} from '../mock/film.js';
-// import {FILM_COUNT} from '../mock/mock-consts.js';
 
 export default class FilmsModel extends Observable {
   #filmsApiService = null;
-  //#films = Array.from({length: FILM_COUNT}, generateFilm);
   #films = [];
 
   constructor({filmsApiService}) {
     super();
     this.#filmsApiService = filmsApiService;
-
-    // this.#filmsApiService.films.then((films) => {
-    //   console.log(films.map(this.#adaptToClient));
-    // });
   }
 
   get films() {
@@ -24,7 +17,6 @@ export default class FilmsModel extends Observable {
   async init() {
     try {
       const films = await this.#filmsApiService.films;
-      console.log(films)
       this.#films = films.map(this.#adaptToClient);
     } catch(err) {
       this.#films = [];
