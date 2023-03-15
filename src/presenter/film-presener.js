@@ -140,12 +140,17 @@ export default class FilmPrsenter {
       });
   };
 
-  #handleDetailsClose = () => {
+  #handleDetailsClose = (update) => {
+    this.#handleDataChange(
+      UserAction.UPDATE_TASK,
+      UpdateType.MINOR,
+      update,
+    );
     this.#replaceFormToCard();
-    this.#handleDataChange();
   };
 
   #handleDeleteClick = (commentId) => {
+    console.log(1)
     this.#handleDataChange(
       UserAction.DELETE_COMMENT,
       UpdateType.MINOR,

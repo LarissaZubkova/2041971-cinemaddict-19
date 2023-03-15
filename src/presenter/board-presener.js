@@ -4,8 +4,9 @@ import FilmsListView from '../view/films-list-view.js';
 import SortView from '../view/sort-view.js';
 import LoadMoreButtonView from '../view/load-more-button-view.js';
 import EmptyListView from '../view/empty-list-view.js';
-import {FILM_COUNT_PER_STEP, Titles, SortType, UpdateType, UserAction} from '../consts.js';
+import {FILM_COUNT_PER_STEP, Titles, SortType, UpdateType, UserAction, FilterType} from '../consts.js';
 import {isExtra, getTopRatedFilms, getMostCommentedFilms, sortByDate, sortByRating} from '../utils/film.js';
+import {filter} from '../utils/filter.js';
 import FilmPrsenter from './film-presener.js';
 
 export default class BoardPresenter {
@@ -13,6 +14,7 @@ export default class BoardPresenter {
   #bodyElement = null;
   #filmsModel = null;
   #commentsModel = null;
+  #filterModel = null;
 
   #boardComponent = new BoardView();
   #filmsListComponent = new FilmsListView();
@@ -20,7 +22,7 @@ export default class BoardPresenter {
   #sectionMostCommentedComponent = new FilmsListView(isExtra, Titles.MOST_COMMENTED);
   #loadMoreButtonComponent = null;
   #sortComponent = null;
-  #noFilmComponent = new EmptyListView();
+  #noFilmComponent = null;
 
   #boardComments = [];
   #renderedFilmCount = FILM_COUNT_PER_STEP;
@@ -28,26 +30,33 @@ export default class BoardPresenter {
   #filmsTopRatedPresenter = new Map();
   #filmsMostCommentedPresenter = new Map();
   #currentSortType = SortType.DEFAULT;
+  #filterType = FilterType.ALL;
 
-  constructor({boardContainer, bodyElement, filmsModel, commentsModel}) {
+  constructor({boardContainer, bodyElement, filmsModel, commentsModel, filterModel}) {
     this.#boardContainer = boardContainer;
     this.#bodyElement = bodyElement;
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
+    this.#filterModel = filterModel;
 
     this.#filmsModel.addObserver(this.#handleModelEvent);
     this.#commentsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get films() {
+    this.#filterType = this.#filterModel.filter;
+    const films = this.#filmsModel.films;
+    const filteredFilms = filter[this.#filterType](films);
+
     switch (this.#currentSortType) {
       case SortType.DATE:
-        return [...this.#filmsModel.films].sort(sortByDate);
+        return filteredFilms.sort(sortByDate);
       case SortType.RATING:
-        return [...this.#filmsModel.films].sort(sortByRating);
+        return filteredFilms.sort(sortByRating);
     }
 
-    return this.#filmsModel.films;
+    return filteredFilms;
   }
 
   get comments() {
@@ -55,7 +64,6 @@ export default class BoardPresenter {
   }
 
   init() {
-    this.#boardComments = [...this.#commentsModel.comments];
     this.#renderBoard();
   }
 
@@ -145,7 +153,7 @@ export default class BoardPresenter {
       onModeChange: this.#handleModeChange,
     });
 
-    filmPresenter.init(film, this.#boardComments);
+    filmPresenter.init(film, this.comments);
     this.#filmsPresenter.set(film.id, filmPresenter);
   }
 
@@ -157,7 +165,7 @@ export default class BoardPresenter {
       onModeChange: this.#handleModeChange,
     });
 
-    topRatedPresenter.init(film, this.#boardComments);
+    topRatedPresenter.init(film, this.comments);
     this.#filmsTopRatedPresenter.set(film.id, topRatedPresenter);
   }
 
@@ -169,7 +177,7 @@ export default class BoardPresenter {
       onModeChange: this.#handleModeChange,
     });
 
-    mostCommentedPresenter.init(film, this.#boardComments);
+    mostCommentedPresenter.init(film, this.comments);
     this.#filmsMostCommentedPresenter.set(film.id, mostCommentedPresenter);
   }
 
@@ -192,6 +200,9 @@ export default class BoardPresenter {
     remove(this.#sectionTopRatedComponent);
     remove(this.#sectionMostCommentedComponent);
 
+    this.#noFilmComponent = new EmptyListView({
+      filterType: this.#filterType
+    });
     render(this.#noFilmComponent, this.#filmsListComponent.element, RenderPosition.AFTERBEGIN);
   }
 
@@ -214,8 +225,11 @@ export default class BoardPresenter {
     this.#filmsMostCommentedPresenter.clear();
 
     remove(this.#sortComponent);
-    remove(this.#noFilmComponent);
     remove(this.#loadMoreButtonComponent);
+
+    if (this.#noFilmComponent) {
+      remove(this.#noFilmComponent);
+    }
 
     if (resetRenderedFilmCount) {
       this.#renderedFilmCount = FILM_COUNT_PER_STEP;

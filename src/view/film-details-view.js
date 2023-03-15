@@ -213,7 +213,7 @@ export default class FilmDetailsView extends AbstractStatefulView{
 
   #detailsCloseHandler = (evt) => {
     evt.preventDefault();
-    this.#handleDetailsClose();
+    this.#handleDetailsClose(this.#film);
     document.querySelector('body').classList.remove('hide-overflow');
   };
 
@@ -249,7 +249,6 @@ export default class FilmDetailsView extends AbstractStatefulView{
 
   #commentDeleteClickHandler = (evt) => {
     evt.preventDefault();
-    //const deletedComment = this.#comments.find((comment) => Number(evt.target.id) === comment.id);
     this.#handleDeleteClick(evt.target.id);
   };
 
