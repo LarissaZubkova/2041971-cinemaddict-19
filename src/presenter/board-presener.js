@@ -123,6 +123,11 @@ export default class BoardPresenter {
         this.#clearBoard({resetRenderedFilmCount: true, resetSortType: true});
         this.#renderBoard();
         break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderBoard();
+        break;
     }
 
   };
@@ -248,6 +253,11 @@ export default class BoardPresenter {
     render(this.#filmsListComponent, this.#boardComponent.element);
     render(this.#sectionTopRatedComponent, this.#boardComponent.element);
     render(this.#sectionMostCommentedComponent, this.#boardComponent.element);
+
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
 
     const films = this.films;
     const filmCount = films.length;
