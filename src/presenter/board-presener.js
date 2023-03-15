@@ -102,18 +102,19 @@ export default class BoardPresenter {
   };
 
   #handleModelEvent = (updateType, data) => {
+    console.log(data)
     switch (updateType) {
-      case UpdateType.PATCH:
-        if (this.#filmsPresenter.get(data.id)) {
-          this.#filmsPresenter.get(data.id).init(data, this.#boardComments);
-        }
-        if (this.#filmsTopRatedPresenter.get(data.id)){
-          this.#filmsTopRatedPresenter.get(data.id).init(data, this.#boardComments);
-        }
-        if (this.#filmsMostCommentedPresenter.get(data.id)){
-          this.#filmsMostCommentedPresenter.get(data.id).init(data, this.#boardComments);
-        }
-        break;
+      // case UpdateType.PATCH:
+      //   if (this.#filmsPresenter.get(data.id)) {
+      //     this.#filmsPresenter.get(data.id).init(data, this.#boardComments);
+      //   }
+      //   if (this.#filmsTopRatedPresenter.get(data.id)){
+      //     this.#filmsTopRatedPresenter.get(data.id).init(data, this.#boardComments);
+      //   }
+      //   if (this.#filmsMostCommentedPresenter.get(data.id)){
+      //     this.#filmsMostCommentedPresenter.get(data.id).init(data, this.#boardComments);
+      //   }
+      //   break;
       case UpdateType.MINOR:
         this.#clearBoard();
         this.#renderBoard();

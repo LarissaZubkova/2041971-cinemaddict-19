@@ -1,5 +1,6 @@
+import he from 'he';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import {humanizeFilmDate, formatDuration} from '../utils/film.js';
+import {humanizeFilmDate, formatDuration, isCtrlPlusEnterPressed} from '../utils/film.js';
 import {DateFormat, RALATIVE_TIME} from '../consts.js';
 import {EMOTIONS} from '../mock/mock-consts.js';
 import dayjs from 'dayjs';
@@ -60,8 +61,8 @@ function createEmotionTemplate(checkedEmoji, emotions) {
   `).join(' ');
 }
 
-function createFilmDetailsTemplate(film, commentsModel) {
-  const {comments, filmInfo, userDetails, checkedEmoji} = film;
+function createFilmDetailsTemplate(film, commentsModel, addedComment) {
+  const {comments, filmInfo, userDetails} = film;
   const {
     poster,
     ageRating,
@@ -158,7 +159,7 @@ function createFilmDetailsTemplate(film, commentsModel) {
 
         <form class="film-details__new-comment" action="" method="get">
           <div class="film-details__add-emoji-label">
-            ${checkedEmoji ? `<img src="./images/emoji/${checkedEmoji}.png" width="55" height="55" alt="emoji-${checkedEmoji}">` : ''}
+            ${addedComment.checkedEmoji ? `<img src="./images/emoji/${addedComment.checkedEmoji}.png" width="55" height="55" alt="emoji-${addedComment.checkedEmoji}">` : ''}
           </div>
 
           <label class="film-details__comment-label">
@@ -166,7 +167,7 @@ function createFilmDetailsTemplate(film, commentsModel) {
           </label>
 
           <div class="film-details__emoji-list">
-            ${createEmotionTemplate(checkedEmoji, EMOTIONS)}
+            ${createEmotionTemplate(addedComment.checkedEmoji, EMOTIONS)}
           </div>
         </form>
       </section>
@@ -180,11 +181,12 @@ export default class FilmDetailsView extends AbstractStatefulView{
   #comments = null;
   #handleDetailsClose = null;
   #handleDeleteClick = null;
+  #handleAddCommentSubmit = null;
   #handleWatchlistClick = null;
   #handleWatchedClick = null;
   #handleFavoriteClick = null;
 
-  constructor({film, comments, onDetailsClose, onWatchlistClick, onWatchedClick, onFavoriteClick, onDeleteClick}) {
+  constructor({film, comments, onDetailsClose, onWatchlistClick, onWatchedClick, onFavoriteClick, onDeleteClick, onCommentAdd}) {
     super();
     this.#film = film;
     this.#comments = comments;
@@ -194,6 +196,7 @@ export default class FilmDetailsView extends AbstractStatefulView{
     this.#handleWatchedClick = onWatchedClick;
     this.#handleFavoriteClick = onFavoriteClick;
     this.#handleDeleteClick = onDeleteClick;
+    this.#handleAddCommentSubmit = onCommentAdd;
     this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#detailsCloseHandler);
     this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchlistClickHandler);
     this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#watchedClickHandler);
@@ -203,12 +206,13 @@ export default class FilmDetailsView extends AbstractStatefulView{
   }
 
   get template() {
-    return createFilmDetailsTemplate(this.#film, this.#comments);
+    return createFilmDetailsTemplate(this.#film, this.#comments, this._state);
   }
 
   _restoreHandlers() {
     this.element.querySelector('.film-details__emoji-list').addEventListener('click', this.#emojiClickHandler);
     this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#commentInputHandler);
+    this.element.querySelector('.film-details__comment-input').addEventListener('keydown', this.#addCommentKeydownHandler);
   }
 
   #detailsCloseHandler = (evt) => {
@@ -243,13 +247,23 @@ export default class FilmDetailsView extends AbstractStatefulView{
 
   #commentInputHandler = (evt) => {
     this._setState({
-      userComment: evt.target.value
+      userComment: he.encode(evt.target.value)
     });
   };
 
   #commentDeleteClickHandler = (evt) => {
     evt.preventDefault();
     this.#handleDeleteClick(evt.target.id);
+  };
+
+  #addCommentKeydownHandler = (evt) => {
+    if (isCtrlPlusEnterPressed(evt)) {
+      const commentToAdd = {
+        comment: this._state.userComment,
+        emotion: this._state.checkedEmoji
+      };
+      this.#handleAddCommentSubmit(commentToAdd);
+    }
   };
 
   static parseCommentsToState() {

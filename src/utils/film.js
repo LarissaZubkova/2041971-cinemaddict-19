@@ -83,6 +83,10 @@ function sortByRating(filmA, filmB) {
   return weight ?? filmB.filmInfo.totalRating - filmA.filmInfo.totalRating;
 }
 
+function isCtrlPlusEnterPressed(evt) {
+  return evt.ctrlKey && evt.code === 'Enter';
+}
+
 export {
   humanizeFilmDate,
   formatDuration,
@@ -94,4 +98,5 @@ export {
   getMostCommentedFilms,
   sortByDate,
   sortByRating,
+  isCtrlPlusEnterPressed,
 };
