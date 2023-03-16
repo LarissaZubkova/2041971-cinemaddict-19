@@ -4,13 +4,17 @@ const DateFormat = {
   COMMENT_DATE_FORMAT: 'YYYY/MM/DD HH:mm',
 };
 
+const EMOTIONS = ['smile', 'sleeping', 'puke', 'angry'];
+
 const FILM_COUNT_PER_STEP = 5;
 
+const MAX_DESCRIPTION_LENGTH = 140;
+
 const FilterType = {
-  ALL: 'all',
-  WATCHLIST: 'watchlist',
-  HISTORY: 'history',
-  FAVORITES: 'favorites',
+  ALL: 'All movies',
+  WATCHLIST: 'Watchlist',
+  HISTORY: 'History',
+  FAVORITES: 'Favorites',
 };
 
 const Titles = {
@@ -47,13 +51,38 @@ const RALATIVE_TIME = {
   yy: '%d years ago',
 };
 
+const UserAction = {
+  UPDATE_FILM: 'UPDATE_FILM',
+  ADD_COMMENT: 'ADD_COMMENT',
+  DELETE_COMMENT: 'DELETE_COMMENT',
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+  INIT: 'INIT',
+};
+
+const Method = {
+  GET: 'GET',
+  PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE',
+};
+
 export {
   DateFormat,
+  EMOTIONS,
   FILM_COUNT_PER_STEP,
   FilterType,
   Titles,
   Mode,
   SortType,
   FILMS_EXTRA_COUNT,
-  RALATIVE_TIME
+  RALATIVE_TIME,
+  UserAction,
+  UpdateType,
+  MAX_DESCRIPTION_LENGTH,
+  Method,
 };

@@ -1,7 +1,7 @@
-import AbstractView from '../framework/view/abstract-view.js';
-import {humanizeFilmDate, formatDuration} from '../utils/film.js';
-import {DateFormat, RALATIVE_TIME} from '../consts.js';
-import {EMOTIONS} from '../mock/mock_consts.js';
+import he from 'he';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+import {humanizeFilmDate, formatDuration, isCtrlPlusEnterPressed} from '../utils/film.js';
+import {DateFormat, RALATIVE_TIME, EMOTIONS} from '../consts.js';
 import dayjs from 'dayjs';
 import require from 'dayjs';
 import updateLocale from 'dayjs/plugin/updateLocale';
@@ -29,10 +29,8 @@ function getCommentDate(date) {
     : dayjs(date).fromNow();
 }
 
-function createCommentsTemplate(currentComments, commentsModel) {
-  const commentsForFilm = commentsModel.filter((comment) => currentComments.includes(comment.id));
-
-  return commentsForFilm.map((commentForFilm) => {
+function createCommentsTemplate(commentsModel) {
+  return commentsModel.map((commentForFilm) => {
     const {emotion, comment, author, date} = commentForFilm;
 
     return `<li class="film-details__comment">
@@ -42,25 +40,25 @@ function createCommentsTemplate(currentComments, commentsModel) {
        <div>
         <p class="film-details__comment-text">${comment}</p>
         <p class="film-details__comment-info">
-        <span class="film-details__comment-author">${author}</span>
-        <span class="film-details__comment-day">${getCommentDate(date)}</span>
-        <button class="film-details__comment-delete">Delete</button>
+          <span class="film-details__comment-author">${author}</span>
+          <span class="film-details__comment-day">${getCommentDate(date)}</span>
+          <button class="film-details__comment-delete" id="${commentForFilm.id}">Delete</button>
     </p>
   </div>
 </li>`;
   }).join(' ');
 }
 
-function createEmotionTemplate(emotions) {
+function createEmotionTemplate(checkedEmoji, emotions) {
   return emotions.map((emotion) => `
-    <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emotion}" value="${emotion}">
+    <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emotion}" value="${emotion}" ${checkedEmoji === emotion ? 'checked' : ''} >
       <label class="film-details__emoji-label" for="emoji-${emotion}">
-          <img src="./images/emoji/${emotion}.png" width="30" height="30" alt="emoji">
+          <img id="${emotion}" src="./images/emoji/${emotion}.png" width="30" height="30" alt="emoji">
       </label>
   `).join(' ');
 }
 
-function createFilmDetailsTemplate(film, commentsModel) {
+function createFilmDetailsTemplate(film, commentsModel, addedComment) {
   const {comments, filmInfo, userDetails} = film;
   const {
     poster,
@@ -129,7 +127,7 @@ function createFilmDetailsTemplate(film, commentsModel) {
               <td class="film-details__cell">${release.releaseCountry}</td>
             </tr>
             <tr class="film-details__row">
-              <td class="film-details__term">Genres</td>
+              <td class="film-details__term">${genre.length > 1 ? 'Genres' : 'Genre'}</td>
               <td class="film-details__cell">
                 ${createGenreTemplate(genre)}
               </td>
@@ -153,18 +151,20 @@ function createFilmDetailsTemplate(film, commentsModel) {
         <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
         <ul class="film-details__comments-list">
-        ${createCommentsTemplate(comments, commentsModel)}
+        ${createCommentsTemplate(commentsModel)}
         </ul>
 
         <form class="film-details__new-comment" action="" method="get">
-          <div class="film-details__add-emoji-label"></div>
+          <div class="film-details__add-emoji-label">
+            ${addedComment.checkedEmoji ? `<img src="./images/emoji/${addedComment.checkedEmoji}.png" width="55" height="55" alt="emoji-${addedComment.checkedEmoji}">` : ''}
+          </div>
 
           <label class="film-details__comment-label">
             <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
           </label>
 
           <div class="film-details__emoji-list">
-          ${createEmotionTemplate(EMOTIONS)}
+            ${createEmotionTemplate(addedComment.checkedEmoji, EMOTIONS)}
           </div>
         </form>
       </section>
@@ -173,31 +173,43 @@ function createFilmDetailsTemplate(film, commentsModel) {
 </section>`;
 }
 
-export default class FilmDetailsView extends AbstractView {
+export default class FilmDetailsView extends AbstractStatefulView{
   #film = null;
   #comments = null;
   #handleDetailsClose = null;
+  #handleDeleteClick = null;
+  #handleAddCommentSubmit = null;
   #handleWatchlistClick = null;
   #handleWatchedClick = null;
   #handleFavoriteClick = null;
 
-  constructor({film, comments, onDetailsClose, onWatchlistClick, onWatchedClick, onFavoriteClick}) {
+  constructor({film, comments, onDetailsClose, onWatchlistClick, onWatchedClick, onFavoriteClick, onDeleteClick, onCommentAdd}) {
     super();
     this.#film = film;
     this.#comments = comments;
+    this._setState(FilmDetailsView.parseCommentsToState());
     this.#handleDetailsClose = onDetailsClose;
     this.#handleWatchlistClick = onWatchlistClick;
     this.#handleWatchedClick = onWatchedClick;
     this.#handleFavoriteClick = onFavoriteClick;
-
+    this.#handleDeleteClick = onDeleteClick;
+    this.#handleAddCommentSubmit = onCommentAdd;
     this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#detailsCloseHandler);
     this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchlistClickHandler);
     this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#watchedClickHandler);
     this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#favoriteClickHandler);
+    this.element.querySelectorAll('.film-details__comment-delete').forEach((deleteButton) => deleteButton.addEventListener('click', this.#commentDeleteClickHandler));
+    this._restoreHandlers();
   }
 
   get template() {
-    return createFilmDetailsTemplate(this.#film, this.#comments);
+    return createFilmDetailsTemplate(this.#film, this.#comments, this._state);
+  }
+
+  _restoreHandlers() {
+    this.element.querySelector('.film-details__emoji-list').addEventListener('click', this.#emojiClickHandler);
+    this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#commentInputHandler);
+    this.element.querySelector('.film-details__comment-input').addEventListener('keydown', this.#addCommentKeydownHandler);
   }
 
   #detailsCloseHandler = (evt) => {
@@ -220,4 +232,50 @@ export default class FilmDetailsView extends AbstractView {
     evt.preventDefault();
     this.#handleFavoriteClick();
   };
+
+  #emojiClickHandler = (evt) => {
+    const currentScrollPosition = this.element.scrollTop;
+    evt.preventDefault();
+    this.updateElement({
+      checkedEmoji: evt.target.id,
+    });
+    this.element.scroll(0, currentScrollPosition);
+  };
+
+  #commentInputHandler = (evt) => {
+    this._setState({
+      userComment: he.encode(evt.target.value)
+    });
+  };
+
+  #commentDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleDeleteClick(evt.target.id);
+  };
+
+  #addCommentKeydownHandler = (evt) => {
+    if (isCtrlPlusEnterPressed(evt)) {
+      const commentToAdd = {
+        comment: this._state.userComment,
+        emotion: this._state.checkedEmoji
+      };
+      this.#handleAddCommentSubmit(commentToAdd);
+    }
+  };
+
+  static parseCommentsToState() {
+    return {
+      checkedEmoji: null,
+      userComment: null,
+    };
+  }
+
+  static parseStateToFilm(state) {
+    const comment = {...state};
+
+    delete comment.checkedEmoji;
+    delete comment.userComment;
+
+    return comment;
+  }
 }

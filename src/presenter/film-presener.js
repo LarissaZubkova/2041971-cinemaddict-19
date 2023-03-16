@@ -1,11 +1,11 @@
 import {render, remove, replace} from '../framework/render.js';
 import FilmView from '../view/film-view.js';
 import FilmDetailsView from '../view/film-details-view.js';
-import {Mode} from '../consts.js';
+import {Mode, UserAction, UpdateType} from '../consts.js';
 
 export default class FilmPrsenter {
   #filmListContainer = null;
-  #popupContainer = null;
+  #bodyElement = null;
   #handleDataChange = null;
   #handleModeChange = null;
 
@@ -13,19 +13,21 @@ export default class FilmPrsenter {
   #filmDetailsComponent = null;
 
   #film = null;
-  #comments = null;
+  #commentsModel = null;
   #mode = Mode.DEFAULT;
 
-  constructor({filmListContainer, popupContainer, onDataChange, onModeChange}) {
+  constructor({filmListContainer, bodyElement, onDataChange, onModeChange}) {
     this.#filmListContainer = filmListContainer;
-    this.#popupContainer = popupContainer;
+    this.#bodyElement = bodyElement;
     this.#handleDataChange = onDataChange;
     this.#handleModeChange = onModeChange;
   }
 
-  init(film, comments) {
+  async init(film, commentsModel) {
     this.#film = film;
-    this.#comments = comments;
+    this.#commentsModel = commentsModel;
+
+    const comments = await this.#commentsModel.getComments(this.#film.id);
 
     const prevFilmComponent = this.#filmComponent;
     const prevFilmDetailsComponent = this.#filmDetailsComponent;
@@ -40,23 +42,27 @@ export default class FilmPrsenter {
 
     this.#filmDetailsComponent = new FilmDetailsView({
       film: this.#film,
-      comments: this.#comments,
+      comments: comments,
       onDetailsClose: this.#handleDetailsClose,
       onWatchlistClick: this.#handleWatchlistClick,
       onWatchedClick: this.#handleWatchedClick,
       onFavoriteClick: this.#handleFavoriteClick,
+      onDeleteClick: this.#handleDeleteClick,
+      onCommentAdd: this.#handleCommentAdd,
     });
 
     if (prevFilmComponent === null || prevFilmDetailsComponent === null) {
       render(this.#filmComponent, this.#filmListContainer);
       return;
     }
+
     if (this.#mode === Mode.DEFAULT) {
       replace(this.#filmComponent, prevFilmComponent);
     }
 
     if (this.#mode === Mode.DETAILS) {
       replace(this.#filmDetailsComponent, prevFilmDetailsComponent);
+      return;
     }
 
     remove(prevFilmComponent);
@@ -75,7 +81,7 @@ export default class FilmPrsenter {
   }
 
   #replaceCardToForm() {
-    this.#popupContainer.append(this.#filmDetailsComponent.element);
+    this.#bodyElement.append(this.#filmDetailsComponent.element);
     document.addEventListener('keydown', this.#escKeyDownHandler);
     this.#handleModeChange();
     this.#mode = Mode.DETAILS;
@@ -99,38 +105,67 @@ export default class FilmPrsenter {
   };
 
   #handleWatchlistClick = () => {
-    this.#handleDataChange({
-      ...this.#film,
-      userDetails: {
-        ...this.#film.userDetails,
-        watchlist: !this.#film.userDetails.watchlist,
-      }
-    });
+    console.log(1)
+    this.#handleDataChange(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      {
+        ...this.#film,
+        userDetails: {
+          ...this.#film.userDetails,
+          watchlist: !this.#film.userDetails.watchlist,
+        }
+      });
   };
 
   #handleWatchedClick = () => {
-    this.#handleDataChange({
-      ...this.#film,
-      userDetails: {
-        ...this.#film.userDetails,
-        alreadyWatched: !this.#film.userDetails.alreadyWatched,
-      }
-    });
+    this.#handleDataChange(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      {
+        ...this.#film,
+        userDetails: {
+          ...this.#film.userDetails,
+          alreadyWatched: !this.#film.userDetails.alreadyWatched,
+        }
+      });
   };
 
   #handleFavoriteClick = () => {
-    this.#handleDataChange({
-      ...this.#film,
-      userDetails: {
-        ...this.#film.userDetails,
-        favorite: !this.#film.userDetails.favorite,
-      }
-    });
+    this.#handleDataChange(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      {
+        ...this.#film,
+        userDetails: {
+          ...this.#film.userDetails,
+          favorite: !this.#film.userDetails.favorite,
+        }
+      });
   };
 
-  #handleDetailsClose = (film) => {
+  #handleDetailsClose = (update) => {
+    this.#handleDataChange(
+      UserAction.UPDATE_TASK,
+      UpdateType.MINOR,
+      update,
+    );
     this.#replaceFormToCard();
-    this.#handleDataChange(film);
+  };
 
+  #handleDeleteClick = (comment) => {
+    this.#handleDataChange(
+      UserAction.DELETE_COMMENT,
+      UpdateType.MINOR,
+      comment,
+    );
+  };
+
+  #handleCommentAdd = (commentToAdd) => {
+    this.#handleDataChange(
+      UserAction.ADD_COMMENT,
+      UpdateType.MINOR,
+      commentToAdd,
+    );
   };
 }
