@@ -2,7 +2,6 @@ import {render, remove, replace} from '../framework/render.js';
 import FilmView from '../view/film-view.js';
 import FilmDetailsView from '../view/film-details-view.js';
 import {Mode, UserAction, UpdateType} from '../consts.js';
-import {nanoid} from 'nanoid';
 
 export default class FilmPrsenter {
   #filmListContainer = null;
@@ -106,9 +105,10 @@ export default class FilmPrsenter {
   };
 
   #handleWatchlistClick = () => {
+    console.log(1)
     this.#handleDataChange(
       UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       {
         ...this.#film,
         userDetails: {
@@ -121,7 +121,7 @@ export default class FilmPrsenter {
   #handleWatchedClick = () => {
     this.#handleDataChange(
       UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       {
         ...this.#film,
         userDetails: {
@@ -153,19 +153,19 @@ export default class FilmPrsenter {
     this.#replaceFormToCard();
   };
 
-  #handleDeleteClick = (commentId) => {
+  #handleDeleteClick = (comment) => {
     this.#handleDataChange(
       UserAction.DELETE_COMMENT,
       UpdateType.MINOR,
-      commentId,
+      comment,
     );
   };
 
   #handleCommentAdd = (commentToAdd) => {
     this.#handleDataChange(
       UserAction.ADD_COMMENT,
-      UpdateType.MAJOR,
-      {id: nanoid(), ...commentToAdd},
+      UpdateType.MINOR,
+      commentToAdd,
     );
   };
 }

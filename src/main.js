@@ -8,7 +8,7 @@ import FilterModel from './model/filter-model.js';
 import FilmsApiService from './api-service.js/films-api-service.js';
 import CommentsApiService from './api-service.js/comments-api-service.js';
 
-const AUTHORIZATION = 'Basic hS2sfS44wc3f5u89';
+const AUTHORIZATION = 'Basic hS2sfS44wc3f5u88';
 const END_POINT = 'https://19.ecmascript.pages.academy/cinemaddict';
 
 const bodyElement = document.querySelector('body');

@@ -4,6 +4,8 @@ const DateFormat = {
   COMMENT_DATE_FORMAT: 'YYYY/MM/DD HH:mm',
 };
 
+const EMOTIONS = ['smile', 'sleeping', 'puke', 'angry'];
+
 const FILM_COUNT_PER_STEP = 5;
 
 const MAX_DESCRIPTION_LENGTH = 140;
@@ -62,8 +64,16 @@ const UpdateType = {
   INIT: 'INIT',
 };
 
+const Method = {
+  GET: 'GET',
+  PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE',
+};
+
 export {
   DateFormat,
+  EMOTIONS,
   FILM_COUNT_PER_STEP,
   FilterType,
   Titles,
@@ -74,4 +84,5 @@ export {
   UserAction,
   UpdateType,
   MAX_DESCRIPTION_LENGTH,
+  Method,
 };

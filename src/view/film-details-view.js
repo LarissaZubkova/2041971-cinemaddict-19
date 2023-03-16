@@ -1,8 +1,7 @@
 import he from 'he';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {humanizeFilmDate, formatDuration, isCtrlPlusEnterPressed} from '../utils/film.js';
-import {DateFormat, RALATIVE_TIME} from '../consts.js';
-import {EMOTIONS} from '../mock/mock-consts.js';
+import {DateFormat, RALATIVE_TIME, EMOTIONS} from '../consts.js';
 import dayjs from 'dayjs';
 import require from 'dayjs';
 import updateLocale from 'dayjs/plugin/updateLocale';
@@ -30,10 +29,8 @@ function getCommentDate(date) {
     : dayjs(date).fromNow();
 }
 
-function createCommentsTemplate(currentComments, commentsModel) {
-  const commentsForFilm = commentsModel.filter((comment) => currentComments.includes(comment.id));
-
-  return commentsForFilm.map((commentForFilm) => {
+function createCommentsTemplate(commentsModel) {
+  return commentsModel.map((commentForFilm) => {
     const {emotion, comment, author, date} = commentForFilm;
 
     return `<li class="film-details__comment">
@@ -154,7 +151,7 @@ function createFilmDetailsTemplate(film, commentsModel, addedComment) {
         <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
         <ul class="film-details__comments-list">
-        ${createCommentsTemplate(comments, commentsModel)}
+        ${createCommentsTemplate(commentsModel)}
         </ul>
 
         <form class="film-details__new-comment" action="" method="get">

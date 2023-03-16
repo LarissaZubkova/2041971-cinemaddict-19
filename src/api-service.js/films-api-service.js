@@ -1,9 +1,6 @@
 import ApiService from '../framework/api-service.js';
+import {Method} from '../consts.js';
 
-const Method = {
-  GET: 'GET',
-  PUT: 'PUT',
-};
 
 export default class FilmsApiService extends ApiService {
   get films() {
@@ -25,7 +22,6 @@ export default class FilmsApiService extends ApiService {
   }
 
   #adaptToServer(film) {
-    console.log(film);
     const adaptedFilm = {
       ...film,
       'film_info': {
