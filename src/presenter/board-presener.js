@@ -26,7 +26,6 @@ export default class BoardPresenter {
   #sortComponent = null;
   #noFilmComponent = null;
 
-  #boardComments = [];
   #renderedFilmCount = FILM_COUNT_PER_STEP;
   #filmsPresenter = new Map();
   #filmsTopRatedPresenter = new Map();
@@ -45,6 +44,7 @@ export default class BoardPresenter {
     this.#filmsModel.addObserver(this.#handleModelEvent);
     this.#commentsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
+    console.log(2, this.#commentsModel)
   }
 
   get films() {
@@ -60,10 +60,6 @@ export default class BoardPresenter {
     }
 
     return filteredFilms;
-  }
-
-  get comments() {
-    return this.#commentsModel;
   }
 
   init() {
@@ -109,13 +105,14 @@ export default class BoardPresenter {
     switch (updateType) {
       case UpdateType.PATCH:
         if (this.#filmsPresenter.get(data.id)) {
-          this.#filmsPresenter.get(data.id).init(data, this.comments);
+          console.log(this.#filmsPresenter.get(data.id))
+          this.#filmsPresenter.get(data.id).init(data, this.#commentsModel);
         }
         if (this.#filmsTopRatedPresenter.get(data.id)){
-          this.#filmsTopRatedPresenter.get(data.id).init(data, this.comments);
+          this.#filmsTopRatedPresenter.get(data.id).init(data, this.#commentsModel);
         }
         if (this.#filmsMostCommentedPresenter.get(data.id)){
-          this.#filmsMostCommentedPresenter.get(data.id).init(data, this.comments);
+          this.#filmsMostCommentedPresenter.get(data.id).init(data, this.#commentsModel);
         }
         break;
       case UpdateType.MINOR:
@@ -154,7 +151,9 @@ export default class BoardPresenter {
     render(this.#sortComponent, this.#boardContainer, RenderPosition.AFTERBEGIN);
   }
 
-  #renderFilm(film) {
+  async #renderFilm(film) {
+    this.#commentsModel.comments = await this.#commentsModel.getComments(film.id);
+    console.log(3, comments)
     const filmPresenter = new FilmPrsenter({
       filmListContainer: this.#filmsListComponent.element.querySelector('.films-list__container'),
       bodyElement: this.#bodyElement,
@@ -162,11 +161,12 @@ export default class BoardPresenter {
       onModeChange: this.#handleModeChange,
     });
 
-    filmPresenter.init(film, this.comments);
+    filmPresenter.init(film, comments);
     this.#filmsPresenter.set(film.id, filmPresenter);
   }
 
-  #renderTopRatedFilm(film) {
+  async #renderTopRatedFilm(film) {
+    const comments = await this.#commentsModel.getComments(film.id);
     const topRatedPresenter = new FilmPrsenter({
       filmListContainer: this.#sectionTopRatedComponent.element.querySelector('.films-list__container'),
       bodyElement: this.#bodyElement,
@@ -174,19 +174,20 @@ export default class BoardPresenter {
       onModeChange: this.#handleModeChange,
     });
 
-    topRatedPresenter.init(film, this.comments);
+    topRatedPresenter.init(film, comments);
     this.#filmsTopRatedPresenter.set(film.id, topRatedPresenter);
   }
 
-  #renderMostCommentedFilm(film) {
+  async #renderMostCommentedFilm(film) {
+    const comments = await this.#commentsModel.getComments(film.id);
     const mostCommentedPresenter = new FilmPrsenter({
       filmListContainer: this.#sectionMostCommentedComponent.element.querySelector('.films-list__container'),
       bodyElement: this.#bodyElement,
       onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange,
     });
-
-    mostCommentedPresenter.init(film, this.comments);
+    console.log(4, comments)
+    mostCommentedPresenter.init(film, comments);
     this.#filmsMostCommentedPresenter.set(film.id, mostCommentedPresenter);
   }
 

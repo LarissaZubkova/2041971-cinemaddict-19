@@ -5,10 +5,9 @@ function createFilteredCountTemplate(count) {
 }
 
 function createFilterItemTemplate(filter, currentFilterType) {
-  console.log(filter)
   const {type, name, count} = filter;
 
-  return `<a href="#${name}" class="main-navigation__item ${type === currentFilterType ? 'main-navigation__item--active' : ''}">${name}
+  return `<a href="#${name}" class="main-navigation__item ${type === currentFilterType ? 'main-navigation__item--active' : ''}" data-filter-type = "${type}">${name}
     ${name === 'All movies' ? '' : createFilteredCountTemplate(count)}
   </a>`;
 }
@@ -32,7 +31,7 @@ export default class FilterView extends AbstractView {
     this.#currentFilter = currentFilterType;
     this.#handleFilterTypeChange = onFilterTypeChange;
 
-    this.element.addEventListener('change', this.#filterTypeChangeHandler);
+    this.element.addEventListener('click', this.#filterTypeChangeHandler);
   }
 
   get template() {
@@ -41,6 +40,9 @@ export default class FilterView extends AbstractView {
 
   #filterTypeChangeHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFilterTypeChange(evt.target.value);
+
+    if (evt.target.dataset.filterType) {
+      this.#handleFilterTypeChange(evt.target.dataset.filterType);
+    }
   };
 }

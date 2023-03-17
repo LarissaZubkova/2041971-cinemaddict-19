@@ -220,33 +220,33 @@ export default class FilmDetailsView extends AbstractStatefulView{
   };
 
   #watchlistClickHandler = (evt) => {
-    const currentScrollPosition = this.element.scrollTop;
+    //const currentScrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this.#handleWatchlistClick();
-    this.element.scroll(0, currentScrollPosition);
+    //this.element.scroll(0, currentScrollPosition);
   };
 
   #watchedClickHandler = (evt) => {
-    const currentScrollPosition = this.element.scrollTop;
+    //const currentScrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this.#handleWatchedClick();
-    this.element.scroll(0, currentScrollPosition);
+    //this.element.scroll(0, currentScrollPosition);
   };
 
   #favoriteClickHandler = (evt) => {
-    const currentScrollPosition = this.element.scrollTop;
+    //const currentScrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this.#handleFavoriteClick();
-    this.element.scroll(0, currentScrollPosition);
+    //this.element.scroll(0, currentScrollPosition);
   };
 
   #emojiClickHandler = (evt) => {
-    const currentScrollPosition = this.element.scrollTop;
+    //const currentScrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this.updateElement({
       checkedEmoji: evt.target.id,
     });
-    this.element.scroll(0, currentScrollPosition);
+    //this.element.scroll(0, currentScrollPosition);
   };
 
   #commentInputHandler = (evt) => {

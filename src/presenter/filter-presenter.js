@@ -47,7 +47,7 @@ export default class FilterPresenter {
   }
 
   init() {
-    const filters = this.filters;
+    const filters = this. filters;
     const prevFilterComponent = this.#filterComponent;
 
     this.#filterComponent = new FilterView({

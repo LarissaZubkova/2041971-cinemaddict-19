@@ -13,7 +13,6 @@ export default class FilmPrsenter {
   #filmDetailsComponent = null;
 
   #film = null;
-  #commentsModel = null;
   #mode = Mode.DEFAULT;
 
   constructor({filmListContainer, bodyElement, onDataChange, onModeChange}) {
@@ -23,11 +22,8 @@ export default class FilmPrsenter {
     this.#handleModeChange = onModeChange;
   }
 
-  async init(film, commentsModel) {
+  init(film, comments) {
     this.#film = film;
-    this.#commentsModel = commentsModel;
-
-    const comments = await this.#commentsModel.getComments(this.#film.id);
 
     const prevFilmComponent = this.#filmComponent;
     const prevFilmDetailsComponent = this.#filmDetailsComponent;
@@ -42,7 +38,7 @@ export default class FilmPrsenter {
 
     this.#filmDetailsComponent = new FilmDetailsView({
       film: this.#film,
-      comments: comments,
+      comments,
       onDetailsClose: this.#handleDetailsClose,
       onWatchlistClick: this.#handleWatchlistClick,
       onWatchedClick: this.#handleWatchedClick,
@@ -154,6 +150,7 @@ export default class FilmPrsenter {
   };
 
   #handleDeleteClick = (comment) => {
+    console.log(comment)
     this.#handleDataChange(
       UserAction.DELETE_COMMENT,
       UpdateType.MINOR,
