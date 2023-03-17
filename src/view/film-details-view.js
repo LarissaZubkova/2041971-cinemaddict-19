@@ -194,11 +194,7 @@ export default class FilmDetailsView extends AbstractStatefulView{
     this.#handleFavoriteClick = onFavoriteClick;
     this.#handleDeleteClick = onDeleteClick;
     this.#handleAddCommentSubmit = onCommentAdd;
-    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#detailsCloseHandler);
-    this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchlistClickHandler);
-    this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#watchedClickHandler);
-    this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#favoriteClickHandler);
-    this.element.querySelectorAll('.film-details__comment-delete').forEach((deleteButton) => deleteButton.addEventListener('click', this.#commentDeleteClickHandler));
+
     this._restoreHandlers();
   }
 
@@ -207,6 +203,11 @@ export default class FilmDetailsView extends AbstractStatefulView{
   }
 
   _restoreHandlers() {
+    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#detailsCloseHandler);
+    this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchlistClickHandler);
+    this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#watchedClickHandler);
+    this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#favoriteClickHandler);
+    this.element.querySelectorAll('.film-details__comment-delete').forEach((deleteButton) => deleteButton.addEventListener('click', this.#commentDeleteClickHandler));
     this.element.querySelector('.film-details__emoji-list').addEventListener('click', this.#emojiClickHandler);
     this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#commentInputHandler);
     this.element.querySelector('.film-details__comment-input').addEventListener('keydown', this.#addCommentKeydownHandler);
@@ -219,18 +220,24 @@ export default class FilmDetailsView extends AbstractStatefulView{
   };
 
   #watchlistClickHandler = (evt) => {
+    const currentScrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this.#handleWatchlistClick();
+    this.element.scroll(0, currentScrollPosition);
   };
 
   #watchedClickHandler = (evt) => {
+    const currentScrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this.#handleWatchedClick();
+    this.element.scroll(0, currentScrollPosition);
   };
 
   #favoriteClickHandler = (evt) => {
+    const currentScrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this.#handleFavoriteClick();
+    this.element.scroll(0, currentScrollPosition);
   };
 
   #emojiClickHandler = (evt) => {

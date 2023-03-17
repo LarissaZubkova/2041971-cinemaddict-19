@@ -15,7 +15,7 @@ export default class FilterPresenter {
     this.#filterModel = filterModel;
     this.#filmsModel = filmsModel;
 
-    this.#filterModel.addObserver(this.#handleModelEvent);
+    this.#filmsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
 

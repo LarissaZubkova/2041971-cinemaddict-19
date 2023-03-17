@@ -62,6 +62,7 @@ export default class FilmPrsenter {
 
     if (this.#mode === Mode.DETAILS) {
       replace(this.#filmDetailsComponent, prevFilmDetailsComponent);
+      replace(this.#filmComponent, prevFilmComponent);
       return;
     }
 
@@ -105,7 +106,6 @@ export default class FilmPrsenter {
   };
 
   #handleWatchlistClick = () => {
-    console.log(1)
     this.#handleDataChange(
       UserAction.UPDATE_FILM,
       UpdateType.PATCH,

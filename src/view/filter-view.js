@@ -4,11 +4,8 @@ function createFilteredCountTemplate(count) {
   return `<span class="main-navigation__item-count">${count}</span>`;
 }
 
-// function getFiltersClassName(isActive) {
-//   return isActive ? 'main-navigation__item--active' : '';
-// }
-
 function createFilterItemTemplate(filter, currentFilterType) {
+  console.log(filter)
   const {type, name, count} = filter;
 
   return `<a href="#${name}" class="main-navigation__item ${type === currentFilterType ? 'main-navigation__item--active' : ''}">${name}
