@@ -44,7 +44,6 @@ export default class BoardPresenter {
     this.#filmsModel.addObserver(this.#handleModelEvent);
     this.#commentsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
-    console.log(2, this.#commentsModel)
   }
 
   get films() {
@@ -86,16 +85,32 @@ export default class BoardPresenter {
     this.#filmsMostCommentedPresenter.forEach((presenter) => presenter.resetView());
   };
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
+    console.log(update)
     switch (actionType) {
       case UserAction.UPDATE_FILM:
-        this.#filmsModel.updateFilm(updateType, update);
+        this.#filmsPresenter.get(update.id).setSaving();
+        try {
+          await this.#filmsModel.updateFilm(updateType, update);
+        } catch(err) {
+          this.#filmsPresenter.get(update.id).setAborting();
+        }
         break;
       case UserAction.ADD_COMMENT:
-        this.#commentsModel.addComment(updateType, update);
+        this.#filmsPresenter.get(update.film.id).setSaving();
+        try {
+          await this.#commentsModel.addComment(updateType, update);
+        } catch(err) {
+          this.#filmsPresenter.get(update.film.id).setAborting();
+        }
         break;
       case UserAction.DELETE_COMMENT:
-        this.#commentsModel.deleteComment(updateType, update);
+        this.#filmsPresenter.get(update.film.id).setDeleting();
+        try {
+          await this.#commentsModel.deleteComment(updateType, update);
+        } catch(err) {
+          this.#filmsPresenter.get(update.film.id).setAborting();
+        }
         break;
     }
   };
@@ -105,7 +120,6 @@ export default class BoardPresenter {
     switch (updateType) {
       case UpdateType.PATCH:
         if (this.#filmsPresenter.get(data.id)) {
-          console.log(this.#filmsPresenter.get(data.id))
           this.#filmsPresenter.get(data.id).init(data, this.#commentsModel);
         }
         if (this.#filmsTopRatedPresenter.get(data.id)){
@@ -118,6 +132,8 @@ export default class BoardPresenter {
       case UpdateType.MINOR:
         this.#clearBoard();
         this.#renderBoard();
+        console.log(data, this.#commentsModel)
+        this.#filmsPresenter.get(data.id).init(data, this.#commentsModel);
         break;
       case UpdateType.MAJOR:
         this.#clearBoard({resetRenderedFilmCount: true, resetSortType: true});
@@ -138,6 +154,7 @@ export default class BoardPresenter {
     }
 
     this.#currentSortType = sortType;
+    this.#renderedFilmCount = FILM_COUNT_PER_STEP;
     this.#clearBoard({resetRenderedTaskCount: true});
     this.#renderBoard();
   };
@@ -151,22 +168,20 @@ export default class BoardPresenter {
     render(this.#sortComponent, this.#boardContainer, RenderPosition.AFTERBEGIN);
   }
 
-  async #renderFilm(film) {
-    this.#commentsModel.comments = await this.#commentsModel.getComments(film.id);
-    console.log(3, comments)
+  #renderFilm(film) {
     const filmPresenter = new FilmPrsenter({
       filmListContainer: this.#filmsListComponent.element.querySelector('.films-list__container'),
+      filterType: this.#filterType,
       bodyElement: this.#bodyElement,
       onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange,
     });
 
-    filmPresenter.init(film, comments);
+    filmPresenter.init(film, this.#commentsModel);
     this.#filmsPresenter.set(film.id, filmPresenter);
   }
 
-  async #renderTopRatedFilm(film) {
-    const comments = await this.#commentsModel.getComments(film.id);
+  #renderTopRatedFilm(film) {
     const topRatedPresenter = new FilmPrsenter({
       filmListContainer: this.#sectionTopRatedComponent.element.querySelector('.films-list__container'),
       bodyElement: this.#bodyElement,
@@ -174,20 +189,18 @@ export default class BoardPresenter {
       onModeChange: this.#handleModeChange,
     });
 
-    topRatedPresenter.init(film, comments);
+    topRatedPresenter.init(film, this.#commentsModel);
     this.#filmsTopRatedPresenter.set(film.id, topRatedPresenter);
   }
 
-  async #renderMostCommentedFilm(film) {
-    const comments = await this.#commentsModel.getComments(film.id);
+  #renderMostCommentedFilm(film) {
     const mostCommentedPresenter = new FilmPrsenter({
       filmListContainer: this.#sectionMostCommentedComponent.element.querySelector('.films-list__container'),
       bodyElement: this.#bodyElement,
       onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange,
     });
-    console.log(4, comments)
-    mostCommentedPresenter.init(film, comments);
+    mostCommentedPresenter.init(film, this.#commentsModel);
     this.#filmsMostCommentedPresenter.set(film.id, mostCommentedPresenter);
   }
 
@@ -221,7 +234,7 @@ export default class BoardPresenter {
     this.#noFilmComponent = new EmptyListView({
       filterType: this.#filterType
     });
-    render(this.#noFilmComponent, this.#filmsListComponent.element, RenderPosition.AFTERBEGIN);
+    render(this.#noFilmComponent, this.#boardComponent.element, RenderPosition.AFTERBEGIN);
   }
 
   #renderLoadMoreButton() {

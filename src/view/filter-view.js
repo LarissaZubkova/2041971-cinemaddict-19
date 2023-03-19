@@ -1,14 +1,14 @@
 import AbstractView from '../framework/view/abstract-view.js';
 
-function createFilteredCountTemplate(count) {
-  return `<span class="main-navigation__item-count">${count}</span>`;
+function createFilteredCountTemplate(count, type) {
+  return `<span class="main-navigation__item-count" data-filter-type="${type}">${count}</span>`;
 }
 
 function createFilterItemTemplate(filter, currentFilterType) {
   const {type, name, count} = filter;
 
-  return `<a href="#${name}" class="main-navigation__item ${type === currentFilterType ? 'main-navigation__item--active' : ''}" data-filter-type = "${type}">${name}
-    ${name === 'All movies' ? '' : createFilteredCountTemplate(count)}
+  return `<a href="#${name}" class="main-navigation__item ${type === currentFilterType ? 'main-navigation__item--active' : ''}" data-filter-type="${type}">${name}
+    ${name === 'All movies' ? '' : createFilteredCountTemplate(count, type)}
   </a>`;
 }
 

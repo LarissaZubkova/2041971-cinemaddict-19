@@ -29,7 +29,7 @@ function getCommentDate(date) {
     : dayjs(date).fromNow();
 }
 
-function createCommentsTemplate(commentsModel) {
+function createCommentsTemplate(commentsModel, isDisabled, isDeleting) {
   return commentsModel.map((commentForFilm) => {
     const {emotion, comment, author, date} = commentForFilm;
 
@@ -42,16 +42,16 @@ function createCommentsTemplate(commentsModel) {
         <p class="film-details__comment-info">
           <span class="film-details__comment-author">${author}</span>
           <span class="film-details__comment-day">${getCommentDate(date)}</span>
-          <button class="film-details__comment-delete" id="${commentForFilm.id}">Delete</button>
+          <button class="film-details__comment-delete" id="${commentForFilm.id}" ${isDisabled ? 'disabled' : ''}>${isDeleting ? 'Deleting' : 'Delete'}</button>
     </p>
   </div>
 </li>`;
   }).join(' ');
 }
 
-function createEmotionTemplate(checkedEmoji, emotions) {
+function createEmotionTemplate(checkedEmoji, emotions, isDisabled) {
   return emotions.map((emotion) => `
-    <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emotion}" value="${emotion}" ${checkedEmoji === emotion ? 'checked' : ''} >
+    <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emotion}" value="${emotion}" ${checkedEmoji === emotion ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
       <label class="film-details__emoji-label" for="emoji-${emotion}">
           <img id="${emotion}" src="./images/emoji/${emotion}.png" width="30" height="30" alt="emoji">
       </label>
@@ -59,6 +59,7 @@ function createEmotionTemplate(checkedEmoji, emotions) {
 }
 
 function createFilmDetailsTemplate(film, commentsModel, addedComment) {
+  const {checkedEmoji, isDisabled, isDeleting} = addedComment;
   const {comments, filmInfo, userDetails} = film;
   const {
     poster,
@@ -140,9 +141,9 @@ function createFilmDetailsTemplate(film, commentsModel, addedComment) {
       </div>
 
       <section class="film-details__controls">
-        <button type="button" class="film-details__control-button film-details__control-button--watchlist ${getControlsClassName(watchlist)}" id="watchlist" name="watchlist">Add to watchlist</button>
-        <button type="button" class="film-details__control-button film-details__control-button--watched ${getControlsClassName(alreadyWatched)}" id="watched" name="watched">Already watched</button>
-        <button type="button" class="film-details__control-button film-details__control-button--favorite ${getControlsClassName(favorite)}" id="favorite" name="favorite">Add to favorites</button>
+        <button type="button" class="film-details__control-button film-details__control-button--watchlist ${getControlsClassName(watchlist)}" id="watchlist" name="watchlist" ${isDisabled ? 'disabled' : ''}>Add to watchlist</button>
+        <button type="button" class="film-details__control-button film-details__control-button--watched ${getControlsClassName(alreadyWatched)}" id="watched" name="watched" ${isDisabled ? 'disabled' : ''}>Already watched</button>
+        <button type="button" class="film-details__control-button film-details__control-button--favorite ${getControlsClassName(favorite)}" id="favorite" name="favorite" ${isDisabled ? 'disabled' : ''}>Add to favorites</button>
       </section>
     </div>
 
@@ -151,20 +152,20 @@ function createFilmDetailsTemplate(film, commentsModel, addedComment) {
         <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
         <ul class="film-details__comments-list">
-        ${createCommentsTemplate(commentsModel)}
+        ${createCommentsTemplate(commentsModel, isDisabled, isDeleting)}
         </ul>
 
         <form class="film-details__new-comment" action="" method="get">
           <div class="film-details__add-emoji-label">
-            ${addedComment.checkedEmoji ? `<img src="./images/emoji/${addedComment.checkedEmoji}.png" width="55" height="55" alt="emoji-${addedComment.checkedEmoji}">` : ''}
+            ${checkedEmoji ? `<img src="./images/emoji/${checkedEmoji}.png" width="55" height="55" alt="emoji-${checkedEmoji}">` : ''}
           </div>
 
           <label class="film-details__comment-label">
-            <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
+            <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment" ${isDisabled ? 'disabled' : ''}></textarea>
           </label>
 
           <div class="film-details__emoji-list">
-            ${createEmotionTemplate(addedComment.checkedEmoji, EMOTIONS)}
+            ${createEmotionTemplate(checkedEmoji, EMOTIONS, isDisabled)}
           </div>
         </form>
       </section>
@@ -187,7 +188,7 @@ export default class FilmDetailsView extends AbstractStatefulView{
     super();
     this.#film = film;
     this.#comments = comments;
-    this._setState(FilmDetailsView.parseCommentsToState());
+    this._setState(FilmDetailsView.parseCommentToState());
     this.#handleDetailsClose = onDetailsClose;
     this.#handleWatchlistClick = onWatchlistClick;
     this.#handleWatchedClick = onWatchedClick;
@@ -215,38 +216,38 @@ export default class FilmDetailsView extends AbstractStatefulView{
 
   #detailsCloseHandler = (evt) => {
     evt.preventDefault();
-    this.#handleDetailsClose(this.#film);
+    this.#handleDetailsClose(this.#film, FilmDetailsView.parseStateToComment(this._state));
     document.querySelector('body').classList.remove('hide-overflow');
   };
 
   #watchlistClickHandler = (evt) => {
-    //const currentScrollPosition = this.element.scrollTop;
+    const currentScrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this.#handleWatchlistClick();
-    //this.element.scroll(0, currentScrollPosition);
+    this.element.scroll(0, currentScrollPosition);
   };
 
   #watchedClickHandler = (evt) => {
-    //const currentScrollPosition = this.element.scrollTop;
+    const currentScrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this.#handleWatchedClick();
-    //this.element.scroll(0, currentScrollPosition);
+    this.element.scroll(0, currentScrollPosition);
   };
 
   #favoriteClickHandler = (evt) => {
-    //const currentScrollPosition = this.element.scrollTop;
+    const currentScrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this.#handleFavoriteClick();
-    //this.element.scroll(0, currentScrollPosition);
+    this.element.scroll(0, currentScrollPosition);
   };
 
   #emojiClickHandler = (evt) => {
-    //const currentScrollPosition = this.element.scrollTop;
+    const currentScrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this.updateElement({
       checkedEmoji: evt.target.id,
     });
-    //this.element.scroll(0, currentScrollPosition);
+    this.element.scroll(0, currentScrollPosition);
   };
 
   #commentInputHandler = (evt) => {
@@ -270,18 +271,22 @@ export default class FilmDetailsView extends AbstractStatefulView{
     }
   };
 
-  static parseCommentsToState() {
+  static parseCommentToState() {
     return {
       checkedEmoji: null,
       userComment: null,
+      isDisabled: false,
+      isDeleting: false,
     };
   }
 
-  static parseStateToFilm(state) {
+  static parseStateToComment(state) {
     const comment = {...state};
 
     delete comment.checkedEmoji;
     delete comment.userComment;
+    delete comment.isDisabled;
+    delete comment.isDeleting;
 
     return comment;
   }
