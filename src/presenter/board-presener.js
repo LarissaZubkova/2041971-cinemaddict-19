@@ -86,14 +86,21 @@ export default class BoardPresenter {
   };
 
   #handleViewAction = async (actionType, updateType, update) => {
-    console.log(update)
+    console.log(this.#filmsModel)
     switch (actionType) {
       case UserAction.UPDATE_FILM:
-        this.#filmsPresenter.get(update.id).setSaving();
         try {
           await this.#filmsModel.updateFilm(updateType, update);
         } catch(err) {
-          this.#filmsPresenter.get(update.id).setAborting();
+          if (this.#filmsPresenter.get(update.id)) {
+            this.#filmsPresenter.get(update.id).setAborting();
+          }
+          if (this.#filmsTopRatedPresenter.get(update.id)){
+            this.#filmsTopRatedPresenter.get(update.id).setAborting();
+          }
+          if (this.#filmsTopRatedPresenter.get(update.id)){
+            this.#filmsMostCommentedPresenter.get(update.id).setAborting();
+          }
         }
         break;
       case UserAction.ADD_COMMENT:
@@ -132,8 +139,6 @@ export default class BoardPresenter {
       case UpdateType.MINOR:
         this.#clearBoard();
         this.#renderBoard();
-        console.log(data, this.#commentsModel)
-        this.#filmsPresenter.get(data.id).init(data, this.#commentsModel);
         break;
       case UpdateType.MAJOR:
         this.#clearBoard({resetRenderedFilmCount: true, resetSortType: true});

@@ -36,7 +36,7 @@ const SortType = {
 const FILMS_EXTRA_COUNT = 2;
 
 const RALATIVE_TIME = {
-  future: 'in %s',
+  future: '%s',
   past: '%s',
   s: 'Today',
   m: 'Today',

@@ -142,7 +142,7 @@ export default class FilmPrsenter {
 
   #handleWatchlistClick = () => {
     let updateType;
-    if (this.#filterType === FilterType.ALL){
+    if (this.#filterType === FilterType.ALL || !this.#filterType){
       updateType = UpdateType.PATCH;
     } else {
       updateType = UpdateType.MINOR;
@@ -162,7 +162,7 @@ export default class FilmPrsenter {
 
   #handleWatchedClick = () => {
     let updateType;
-    if (this.#filterType === FilterType.ALL){
+    if (this.#filterType === FilterType.ALL || !this.#filterType){
       updateType = UpdateType.PATCH;
     } else {
       updateType = UpdateType.MINOR;
@@ -181,7 +181,7 @@ export default class FilmPrsenter {
 
   #handleFavoriteClick = () => {
     let updateType;
-    if (this.#filterType === FilterType.ALL){
+    if (this.#filterType === FilterType.ALL || !this.#filterType){
       updateType = UpdateType.PATCH;
     } else {
       updateType = UpdateType.MINOR;

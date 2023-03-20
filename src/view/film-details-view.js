@@ -216,7 +216,7 @@ export default class FilmDetailsView extends AbstractStatefulView{
 
   #detailsCloseHandler = (evt) => {
     evt.preventDefault();
-    this.#handleDetailsClose(this.#film, FilmDetailsView.parseStateToComment(this._state));
+    this.#handleDetailsClose(this.#film);
     document.querySelector('body').classList.remove('hide-overflow');
   };
 

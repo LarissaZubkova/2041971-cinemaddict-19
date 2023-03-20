@@ -50,7 +50,7 @@ export default class FilterPresenter {
     ];
   }
 
-  async init() {
+  init() {
     const filters = this.filters;
 
     const prevFilterComponent = this.#filterComponent;
