@@ -34,11 +34,11 @@ export default class FilmsModel extends Observable {
     try {
       const response = await this.#filmsApiService.updateFilm(update);
       const updatedFilm = this.#adaptToClient(response);
-      // this.#films = [
-      //   ...this.#films.slice(0, index),
-      //   update,
-      //   ...this.#films.slice(index + 1),
-      // ];
+      this.#films = [
+        ...this.#films.slice(0, index),
+        update,
+        ...this.#films.slice(index + 1),
+      ];
       this._notify(updateType, updatedFilm);
     } catch(err) {
       throw new Error('Can\'t update film');
@@ -60,7 +60,7 @@ export default class FilmsModel extends Observable {
       },
       userDetails: {
         ...film['user_details'],
-        alreadyWatched: film['user_details']['already_watched'],
+        watched: film['user_details']['already_watched'],
         watchingDate: film['user_details']['watching_date']
       }
     };

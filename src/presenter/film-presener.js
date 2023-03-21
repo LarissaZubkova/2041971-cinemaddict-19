@@ -36,18 +36,14 @@ export default class FilmPrsenter {
     this.#filmComponent = new FilmView({
       film: this.#film,
       onDetailsClick: this.#handleDetailsClick,
-      onWatchlistClick: this.#handleWatchlistClick,
-      onWatchedClick: this.#handleWatchedClick,
-      onFavoriteClick: this.#handleFavoriteClick,
+      onControlsClick:this.#handleControlsClick,
     });
 
     this.#filmDetailsComponent = new FilmDetailsView({
       film: this.#film,
       comments: [...commentsForFilm],
       onDetailsClose: this.#handleDetailsClose,
-      onWatchlistClick: this.#handleWatchlistClick,
-      onWatchedClick: this.#handleWatchedClick,
-      onFavoriteClick: this.#handleFavoriteClick,
+      onControlsClick:this.#handleControlsClick,
       onDeleteClick: this.#handleDeleteClick,
       onCommentAdd: this.#handleCommentAdd,
     });
@@ -121,6 +117,7 @@ export default class FilmPrsenter {
     document.addEventListener('keydown', this.#escKeyDownHandler);
     this.#handleModeChange();
     this.#mode = Mode.DETAILS;
+    this.#filmDetailsComponent.resetForm();
   }
 
   #replaceFormToCard() {
@@ -140,7 +137,7 @@ export default class FilmPrsenter {
     this.#replaceCardToForm();
   };
 
-  #handleWatchlistClick = () => {
+  #handleControlsClick = (control) => {
     let updateType;
     if (this.#filterType === FilterType.ALL || !this.#filterType){
       updateType = UpdateType.PATCH;
@@ -155,45 +152,7 @@ export default class FilmPrsenter {
         ...this.#film,
         userDetails: {
           ...this.#film.userDetails,
-          watchlist: !this.#film.userDetails.watchlist,
-        }
-      });
-  };
-
-  #handleWatchedClick = () => {
-    let updateType;
-    if (this.#filterType === FilterType.ALL || !this.#filterType){
-      updateType = UpdateType.PATCH;
-    } else {
-      updateType = UpdateType.MINOR;
-    }
-    this.#handleDataChange(
-      UserAction.UPDATE_FILM,
-      updateType,
-      {
-        ...this.#film,
-        userDetails: {
-          ...this.#film.userDetails,
-          alreadyWatched: !this.#film.userDetails.alreadyWatched,
-        }
-      });
-  };
-
-  #handleFavoriteClick = () => {
-    let updateType;
-    if (this.#filterType === FilterType.ALL || !this.#filterType){
-      updateType = UpdateType.PATCH;
-    } else {
-      updateType = UpdateType.MINOR;
-    }
-    this.#handleDataChange(
-      UserAction.UPDATE_FILM,
-      updateType,
-      {
-        ...this.#film,
-        userDetails: {
-          ...this.#film.userDetails,
-          favorite: !this.#film.userDetails.favorite,
+          [control.id]: !this.#film.userDetails[control.id],
         }
       });
   };

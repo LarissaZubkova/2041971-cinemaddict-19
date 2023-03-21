@@ -8,7 +8,7 @@ import FilmsApiService from './api-service.js/films-api-service.js';
 import CommentsApiService from './api-service.js/comments-api-service.js';
 import StatisticView from './view/statistics-view.js';
 
-const AUTHORIZATION = 'Basic hS2sfS44wc356hg';
+const AUTHORIZATION = 'Basic hS2sfS44wcj356hg';
 const END_POINT = 'https://19.ecmascript.pages.academy/cinemaddict';
 
 const bodyElement = document.querySelector('body');

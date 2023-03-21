@@ -86,7 +86,6 @@ export default class BoardPresenter {
   };
 
   #handleViewAction = async (actionType, updateType, update) => {
-    console.log(this.#filmsModel)
     switch (actionType) {
       case UserAction.UPDATE_FILM:
         try {
@@ -123,7 +122,6 @@ export default class BoardPresenter {
   };
 
   #handleModelEvent = (updateType, data) => {
-    console.log(data)
     switch (updateType) {
       case UpdateType.PATCH:
         if (this.#filmsPresenter.get(data.id)) {
