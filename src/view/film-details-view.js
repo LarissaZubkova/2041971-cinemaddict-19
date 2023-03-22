@@ -206,7 +206,44 @@ export default class FilmDetailsView extends AbstractStatefulView{
     this.element.querySelector('.film-details__emoji-list').addEventListener('click', this.#emojiClickHandler);
     this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#commentInputHandler);
     this.element.querySelector('.film-details__comment-input').addEventListener('keydown', this.#addCommentKeydownHandler);
+    this.element.addEventListener('scroll', this.#scrollPositionHandler);
   }
+
+  getScrollPosition() {
+    return this._state.scrollPosition;
+  }
+
+  setScrollPosition(scrollPosition) {
+    this.element.scrollTo(0, scrollPosition);
+  }
+
+  #scrollPositionHandler = () => {
+    this._setState({ scrollPosition: this.element.scrollTop });
+  };
+
+  shakeControls = () => this.shake.call({element: this.element.querySelector('.film-details__controls')});
+
+  shakeComment = (evt) => {
+    console.log(evt.target)
+    const button = this.element.querySelector(`.film-details__comment-delete[id='${commentId}']`);
+    console.log(button)
+    const comment = button.closest('.film-details__comment');
+
+    this.shake.call({element: comment}, () => {
+      this._setState({
+        isDisabled: false,
+        isDeleting: false,
+      });
+    });
+  };
+
+  shakeForm = () => {
+    this.shake.call({element: document.querySelector('form')}, () => {
+      this._setState({
+        isDisabled: false
+      });
+    });
+  };
 
   #detailsCloseHandler = (evt) => {
     evt.preventDefault();
@@ -225,12 +262,12 @@ export default class FilmDetailsView extends AbstractStatefulView{
   };
 
   #emojiClickHandler = (evt) => {
-    const currentScrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this.updateElement({
       checkedEmoji: evt.target.id,
+      scrollPosition: this.element.scrollTop,
     });
-    this.element.scroll(0, currentScrollPosition);
+    this.element.scrollTo(0, this._state.scrollPosition);
   };
 
   #commentInputHandler = (evt) => {
@@ -254,7 +291,11 @@ export default class FilmDetailsView extends AbstractStatefulView{
         comment: this._state.userComment,
         emotion: this._state.checkedEmoji
       };
+      this.updateElement({
+        scrollPosition: this.element.scrollTop
+      });
       this.#handleAddCommentSubmit(commentToAdd);
+      this.element.scrollTo(0, this._state.scrollPosition);
     }
   };
 

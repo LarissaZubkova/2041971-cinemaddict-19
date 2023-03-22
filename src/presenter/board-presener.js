@@ -92,13 +92,13 @@ export default class BoardPresenter {
           await this.#filmsModel.updateFilm(updateType, update);
         } catch(err) {
           if (this.#filmsPresenter.get(update.id)) {
-            this.#filmsPresenter.get(update.id).setAborting();
+            this.#filmsPresenter.get(update.id).setAborting(actionType);
           }
           if (this.#filmsTopRatedPresenter.get(update.id)){
-            this.#filmsTopRatedPresenter.get(update.id).setAborting();
+            this.#filmsTopRatedPresenter.get(update.id).setAborting(actionType);
           }
-          if (this.#filmsTopRatedPresenter.get(update.id)){
-            this.#filmsMostCommentedPresenter.get(update.id).setAborting();
+          if (this.#filmsMostCommentedPresenter.get(update.id)){
+            this.#filmsMostCommentedPresenter.get(update.id).setAborting(actionType);
           }
         }
         break;
@@ -107,15 +107,16 @@ export default class BoardPresenter {
         try {
           await this.#commentsModel.addComment(updateType, update);
         } catch(err) {
-          this.#filmsPresenter.get(update.film.id).setAborting();
+          this.#filmsPresenter.get(update.film.id).setAborting(actionType, update);
         }
         break;
       case UserAction.DELETE_COMMENT:
         this.#filmsPresenter.get(update.film.id).setDeleting();
         try {
+          this.#filmsPresenter.get(update.film.id).setAborting(updateType, update.commentId);
           await this.#commentsModel.deleteComment(updateType, update);
         } catch(err) {
-          this.#filmsPresenter.get(update.film.id).setAborting();
+          this.#filmsPresenter.get(update.film.id).setAborting(actionType, update.commentId);
         }
         break;
     }

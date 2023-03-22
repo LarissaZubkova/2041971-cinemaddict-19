@@ -60,6 +60,8 @@ export default class FilmPrsenter {
     if (this.#mode === Mode.DETAILS) {
       replace(this.#filmDetailsComponent, prevFilmDetailsComponent);
       replace(this.#filmComponent, prevFilmComponent);
+      const scrollPosition = prevFilmDetailsComponent.getScrollPosition();
+      this.#filmDetailsComponent.setScrollPosition(scrollPosition);
       return;
     }
 
@@ -69,7 +71,6 @@ export default class FilmPrsenter {
 
   destroy() {
     remove(this.#filmComponent);
-    //remove(this.#filmDetailsComponent);
   }
 
   resetView() {
@@ -95,21 +96,33 @@ export default class FilmPrsenter {
     }
   }
 
-  setAborting() {
+  setAborting(actionType, commentId) {
     if (this.#mode === Mode.DEFAULT) {
       this.#filmComponent.shake();
       return;
     }
 
-    const resetFormState = () => {
-      this.#filmDetailsComponent.updateElement({
-        isDisabled: false,
-        isSaving: false,
-        isDeleting: false,
-      });
-    };
+    // const resetFormState = () => {
+    //   this.#filmDetailsComponent.updateElement({
+    //     isDisabled: false,
+    //     isSaving: false,
+    //     isDeleting: false,
+    //   });
+    // };
 
-    this.#filmDetailsComponent.shake(resetFormState);
+    // this.#filmDetailsComponent.shake(resetFormState);
+    switch (actionType) {
+      case UserAction.UPDATE_FILM:
+        this.#filmDetailsComponent.shakeControls();
+        break;
+      case UserAction.DELETE_COMMENT:
+        console.log(commentId)
+        this.#filmDetailsComponent.shakeComment(commentId);
+        break;
+      case UserAction.ADD_COMMENT:
+        this.#filmDetailsComponent.shakeForm();
+        break;
+    }
   }
 
   #replaceCardToForm() {
