@@ -1,11 +1,12 @@
 import {render, remove, RenderPosition} from '../framework/render.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import BoardView from '../view/board-view.js';
 import FilmsListView from '../view/films-list-view.js';
 import SortView from '../view/sort-view.js';
 import LoadMoreButtonView from '../view/load-more-button-view.js';
 import EmptyListView from '../view/empty-list-view.js';
 import LoadingView from '../view/loading-view.js';
-import {FILM_COUNT_PER_STEP, Titles, SortType, UpdateType, UserAction, FilterType} from '../consts.js';
+import {FILM_COUNT_PER_STEP, Titles, SortType, UpdateType, UserAction, FilterType, TimeLimit} from '../consts.js';
 import {isExtra, getTopRatedFilms, getMostCommentedFilms, sortByDate, sortByRating} from '../utils/film.js';
 import {filter} from '../utils/filter.js';
 import FilmPrsenter from './film-presener.js';
@@ -33,6 +34,10 @@ export default class BoardPresenter {
   #currentSortType = SortType.DEFAULT;
   #filterType = FilterType.ALL;
   #isLoading = true;
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT
+  });
 
   constructor({boardContainer, bodyElement, filmsModel, commentsModel, filterModel}) {
     this.#boardContainer = boardContainer;
@@ -86,20 +91,13 @@ export default class BoardPresenter {
   };
 
   #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
     switch (actionType) {
       case UserAction.UPDATE_FILM:
         try {
           await this.#filmsModel.updateFilm(updateType, update);
         } catch(err) {
-          if (this.#filmsPresenter.get(update.id)) {
-            this.#filmsPresenter.get(update.id).setAborting(actionType);
-          }
-          if (this.#filmsTopRatedPresenter.get(update.id)){
-            this.#filmsTopRatedPresenter.get(update.id).setAborting(actionType);
-          }
-          if (this.#filmsMostCommentedPresenter.get(update.id)){
-            this.#filmsMostCommentedPresenter.get(update.id).setAborting(actionType);
-          }
+          this.#filmsPresenter.get(update.id).setAborting(actionType);
         }
         break;
       case UserAction.ADD_COMMENT:
@@ -107,19 +105,79 @@ export default class BoardPresenter {
         try {
           await this.#commentsModel.addComment(updateType, update);
         } catch(err) {
-          this.#filmsPresenter.get(update.film.id).setAborting(actionType, update);
+          this.#filmsPresenter.get(update.film.id).setAborting(actionType);
         }
         break;
       case UserAction.DELETE_COMMENT:
         this.#filmsPresenter.get(update.film.id).setDeleting();
         try {
-          this.#filmsPresenter.get(update.film.id).setAborting(updateType, update.commentId);
           await this.#commentsModel.deleteComment(updateType, update);
         } catch(err) {
           this.#filmsPresenter.get(update.film.id).setAborting(actionType, update.commentId);
         }
         break;
     }
+    this.#uiBlocker.unblock();
+  };
+
+  #handleViewActionTopRated = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+    switch (actionType) {
+      case UserAction.UPDATE_FILM:
+        try {
+          await this.#filmsModel.updateFilm(updateType, update);
+        } catch(err) {
+          this.#filmsTopRatedPresenter.get(update.id).setAborting(actionType);
+        }
+        break;
+      case UserAction.ADD_COMMENT:
+        this.#filmsTopRatedPresenter.get(update.film.id).setSaving();
+        try {
+          await this.#commentsModel.addComment(updateType, update);
+        } catch(err) {
+          this.#filmsTopRatedPresenter.get(update.film.id).setAborting(actionType);
+        }
+        break;
+      case UserAction.DELETE_COMMENT:
+        this.#filmsTopRatedPresenter.get(update.film.id).setDeleting();
+        try {
+          await this.#commentsModel.deleteComment(updateType, update);
+        } catch(err) {
+          this.#filmsTopRatedPresenter.get(update.film.id).setAborting(actionType, update.commentId);
+        }
+        break;
+    }
+    this.#uiBlocker.unblock();
+  };
+
+  #handleViewActionMostCommented = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+    switch (actionType) {
+      case UserAction.UPDATE_FILM:
+        try {
+          await this.#filmsModel.updateFilm(updateType, update);
+        } catch(err) {
+          this.#filmsMostCommentedPresenter.get(update.id).setAborting(actionType);
+        }
+        break;
+      case UserAction.ADD_COMMENT:
+        this.#filmsMostCommentedPresenter.get(update.film.id).setSaving();
+        try {
+          await this.#commentsModel.addComment(updateType, update);
+        } catch(err) {
+          this.#filmsMostCommentedPresenter.get(update.film.id).setAborting(actionType);
+        }
+        break;
+      case UserAction.DELETE_COMMENT:
+        this.#filmsMostCommentedPresenter.get(update.film.id).setDeleting();
+        try {
+          await this.#commentsModel.deleteComment(updateType, update);
+        } catch(err) {
+          this.#filmsMostCommentedPresenter.get(update.film.id).setAborting(actionType, update.commentId);
+        }
+        break;
+    }
+    this.#uiBlocker.unblock();
   };
 
   #handleModelEvent = (updateType, data) => {
@@ -189,7 +247,7 @@ export default class BoardPresenter {
     const topRatedPresenter = new FilmPrsenter({
       filmListContainer: this.#sectionTopRatedComponent.element.querySelector('.films-list__container'),
       bodyElement: this.#bodyElement,
-      onDataChange: this.#handleViewAction,
+      onDataChange: this.#handleViewActionTopRated,
       onModeChange: this.#handleModeChange,
     });
 
@@ -201,7 +259,7 @@ export default class BoardPresenter {
     const mostCommentedPresenter = new FilmPrsenter({
       filmListContainer: this.#sectionMostCommentedComponent.element.querySelector('.films-list__container'),
       bodyElement: this.#bodyElement,
-      onDataChange: this.#handleViewAction,
+      onDataChange: this.#handleViewActionMostCommented,
       onModeChange: this.#handleModeChange,
     });
     mostCommentedPresenter.init(film, this.#commentsModel);

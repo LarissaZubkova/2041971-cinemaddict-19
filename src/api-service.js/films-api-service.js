@@ -1,7 +1,6 @@
 import ApiService from '../framework/api-service.js';
 import {Method} from '../consts.js';
 
-
 export default class FilmsApiService extends ApiService {
   get films() {
     return this._load({url: 'movies'})
@@ -30,13 +29,13 @@ export default class FilmsApiService extends ApiService {
         'total_rating': film.filmInfo.totalRating,
         'release': {
           ...film.filmInfo.release,
-          'release_country': film.filmInfo.release.releaseCountry
+          'release_country': film.filmInfo.release.releaseCountry,
         }
       },
       'user_details': {
         ...film.userDetails,
         'already_watched': film.userDetails.watched,
-        'watching_date': film.userDetails.watchingDate
+        'watching_date': film.userDetails.watchingDate,
       }
     };
 

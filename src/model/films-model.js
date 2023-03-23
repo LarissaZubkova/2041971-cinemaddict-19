@@ -1,5 +1,5 @@
 import Observable from '../framework/observable.js';
-import {UpdateType} from '../consts.js';
+import {UpdateType, ErrorMessage} from '../consts.js';
 
 export default class FilmsModel extends Observable {
   #filmsApiService = null;
@@ -28,7 +28,7 @@ export default class FilmsModel extends Observable {
     const index = this.#films.findIndex((film) => film.id === update.id);
 
     if (index === -1) {
-      throw new Error('Can\'t update unexisting task');
+      throw new Error(ErrorMessage.UPDATE_FILM);
     }
 
     try {
@@ -41,7 +41,7 @@ export default class FilmsModel extends Observable {
       ];
       this._notify(updateType, updatedFilm);
     } catch(err) {
-      throw new Error('Can\'t update film');
+      throw new Error(ErrorMessage.UPDATE_FILM);
     }
   }
 

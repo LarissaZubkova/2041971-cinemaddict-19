@@ -102,21 +102,11 @@ export default class FilmPrsenter {
       return;
     }
 
-    // const resetFormState = () => {
-    //   this.#filmDetailsComponent.updateElement({
-    //     isDisabled: false,
-    //     isSaving: false,
-    //     isDeleting: false,
-    //   });
-    // };
-
-    // this.#filmDetailsComponent.shake(resetFormState);
     switch (actionType) {
       case UserAction.UPDATE_FILM:
         this.#filmDetailsComponent.shakeControls();
         break;
       case UserAction.DELETE_COMMENT:
-        console.log(commentId)
         this.#filmDetailsComponent.shakeComment(commentId);
         break;
       case UserAction.ADD_COMMENT:

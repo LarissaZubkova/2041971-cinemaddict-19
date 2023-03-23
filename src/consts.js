@@ -71,6 +71,16 @@ const Method = {
   DELETE: 'DELETE',
 };
 
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
+
+const ErrorMessage = {
+  ADD_COMMENT: 'Can\'t add comment',
+  UPDATE_FILM: 'Can\'t update film',
+};
+
 export {
   DateFormat,
   EMOTIONS,
@@ -85,4 +95,6 @@ export {
   UpdateType,
   MAX_DESCRIPTION_LENGTH,
   Method,
+  TimeLimit,
+  ErrorMessage,
 };

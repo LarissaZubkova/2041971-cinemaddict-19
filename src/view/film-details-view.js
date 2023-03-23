@@ -218,19 +218,17 @@ export default class FilmDetailsView extends AbstractStatefulView{
   }
 
   #scrollPositionHandler = () => {
-    this._setState({ scrollPosition: this.element.scrollTop });
+    this._setState({scrollPosition: this.element.scrollTop});
   };
 
   shakeControls = () => this.shake.call({element: this.element.querySelector('.film-details__controls')});
 
-  shakeComment = (evt) => {
-    console.log(evt.target)
-    const button = this.element.querySelector(`.film-details__comment-delete[id='${commentId}']`);
-    console.log(button)
+  shakeComment = (id) => {
+    const button = this.element.querySelector(`.film-details__comment-delete[id='${id}']`);
     const comment = button.closest('.film-details__comment');
 
     this.shake.call({element: comment}, () => {
-      this._setState({
+      this.updateElement({
         isDisabled: false,
         isDeleting: false,
       });

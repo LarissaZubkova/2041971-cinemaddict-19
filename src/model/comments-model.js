@@ -1,4 +1,5 @@
 import Observable from '../framework/observable.js';
+import {ErrorMessage} from '../consts.js';
 
 export default class CommentsModel extends Observable {
   #commentsApiService = null;
@@ -27,7 +28,7 @@ export default class CommentsModel extends Observable {
       };
       this._notify(updateType, film);
     } catch(err) {
-      throw new Error('Can\'t add comment');
+      throw new Error(ErrorMessage.ADD_COMMENT);
     }
   }
 
@@ -38,7 +39,6 @@ export default class CommentsModel extends Observable {
           ...update.film,
           comments: update.film.comments.filter((comment) => comment !== update.commentId),
         };
-        //this.#comments = update.film.comments.filter((comment) => comment !== update.commentId);
         this._notify(updateType, film);
       });
   }
