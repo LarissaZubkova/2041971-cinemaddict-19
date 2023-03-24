@@ -25,13 +25,14 @@ export default class FilmPrsenter {
     this.#handleModeChange = onModeChange;
   }
 
-  async init(film, comments) {
+  init(film, comments) {
     this.#film = film;
     this.#comments = comments;
 
-    const commentsForFilm = await this.#comments.getComments(this.#film.id);
+
     const prevFilmComponent = this.#filmComponent;
     const prevFilmDetailsComponent = this.#filmDetailsComponent;
+    //const commentsForFilm = await this.#comments.getComments(this.#film.id);
 
     this.#filmComponent = new FilmView({
       film: this.#film,
@@ -41,7 +42,7 @@ export default class FilmPrsenter {
 
     this.#filmDetailsComponent = new FilmDetailsView({
       film: this.#film,
-      comments: [...commentsForFilm],
+      comments: []/*[...commentsForFilm]*/,
       onDetailsClose: this.#handleDetailsClose,
       onControlsClick:this.#handleControlsClick,
       onDeleteClick: this.#handleDeleteClick,
@@ -115,7 +116,9 @@ export default class FilmPrsenter {
     }
   }
 
-  #replaceCardToForm() {
+  async #replaceCardToForm() {
+    const commentsForFilm = await this.#comments.getComments(this.#film.id);
+    this.#filmDetailsComponent.setComments(commentsForFilm);
     this.#bodyElement.append(this.#filmDetailsComponent.element);
     document.addEventListener('keydown', this.#escKeyDownHandler);
     this.#handleModeChange();
@@ -152,10 +155,11 @@ export default class FilmPrsenter {
       UserAction.UPDATE_FILM,
       updateType,
       {
-        ...this.#film,
-        userDetails: {
-          ...this.#film.userDetails,
-          [control.id]: !this.#film.userDetails[control.id],
+        film: {...this.#film,
+          userDetails: {
+            ...this.#film.userDetails,
+            [control.id]: !this.#film.userDetails[control.id],
+          }
         }
       });
   };
@@ -164,7 +168,9 @@ export default class FilmPrsenter {
     this.#handleDataChange(
       UserAction.UPDATE_TASK,
       UpdateType.MINOR,
-      update,
+      {
+        film: update,
+      }
     );
     this.#replaceFormToCard();
   };

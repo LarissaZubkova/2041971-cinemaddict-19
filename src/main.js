@@ -1,4 +1,5 @@
 import {render} from './framework/render.js';
+import {AUTHORIZATION, END_POINT} from './consts.js';
 import BoardPresenter from './presenter/board-presener.js';
 import FilterPresenter from './presenter/filter-presenter.js';
 import FilmsModel from './model/films-model.js';
@@ -7,9 +8,6 @@ import FilterModel from './model/filter-model.js';
 import FilmsApiService from './api-service.js/films-api-service.js';
 import CommentsApiService from './api-service.js/comments-api-service.js';
 import StatisticView from './view/statistics-view.js';
-
-const AUTHORIZATION = 'Basic hS2sfS44wcj356hg';
-const END_POINT = 'https://19.ecmascript.pages.academy/cinemaddict';
 
 const bodyElement = document.querySelector('body');
 const siteHeaderElement = bodyElement.querySelector('.header');

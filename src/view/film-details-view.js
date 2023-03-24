@@ -59,7 +59,7 @@ function createEmotionTemplate(checkedEmoji, emotions, isDisabled) {
 }
 
 function createFilmDetailsTemplate(film, commentsModel, addedComment) {
-  const {checkedEmoji, isDisabled, isDeleting} = addedComment;
+  const {userComment, checkedEmoji, isDisabled, isDeleting} = addedComment;
   const {comments, filmInfo, userDetails} = film;
   const {
     poster,
@@ -161,7 +161,7 @@ function createFilmDetailsTemplate(film, commentsModel, addedComment) {
           </div>
 
           <label class="film-details__comment-label">
-            <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment" ${isDisabled ? 'disabled' : ''}></textarea>
+            <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment" ${isDisabled ? 'disabled' : ''}>${userComment ? userComment : ''}</textarea>
           </label>
 
           <div class="film-details__emoji-list">
@@ -207,6 +207,10 @@ export default class FilmDetailsView extends AbstractStatefulView{
     this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#commentInputHandler);
     this.element.querySelector('.film-details__comment-input').addEventListener('keydown', this.#addCommentKeydownHandler);
     this.element.addEventListener('scroll', this.#scrollPositionHandler);
+  }
+
+  setComments(commentsForFilm) {
+    this.#comments = commentsForFilm;
   }
 
   getScrollPosition() {
@@ -311,16 +315,5 @@ export default class FilmDetailsView extends AbstractStatefulView{
       isDisabled: false,
       isDeleting: false,
     };
-  }
-
-  static parseStateToComment(state) {
-    const comment = {...state};
-
-    delete comment.checkedEmoji;
-    delete comment.userComment;
-    delete comment.isDisabled;
-    delete comment.isDeleting;
-
-    return comment;
   }
 }

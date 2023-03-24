@@ -81,6 +81,9 @@ const ErrorMessage = {
   UPDATE_FILM: 'Can\'t update film',
 };
 
+const AUTHORIZATION = 'Basic hS2sfS44wcj356hg';
+const END_POINT = 'https://19.ecmascript.pages.academy/cinemaddict';
+
 export {
   DateFormat,
   EMOTIONS,
@@ -97,4 +100,6 @@ export {
   Method,
   TimeLimit,
   ErrorMessage,
+  AUTHORIZATION,
+  END_POINT,
 };

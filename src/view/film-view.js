@@ -72,7 +72,6 @@ export default class FilmView extends AbstractView {
     if (!evt.target.classList.contains('film-card__controls-item')) {
       return;
     }
-
     this.#handleControlsClick(evt.target);
   };
 }

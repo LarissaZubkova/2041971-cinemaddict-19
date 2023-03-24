@@ -91,91 +91,50 @@ export default class BoardPresenter {
   };
 
   #handleViewAction = async (actionType, updateType, update) => {
+    const isAllFilms = this.#filmsPresenter.get(update.film.id);
+    const isTopRated = this.#filmsTopRatedPresenter.get(update.film.id);
+    const isMostCommented = this.#filmsMostCommentedPresenter.get(update.film.id);
     this.#uiBlocker.block();
-    switch (actionType) {
-      case UserAction.UPDATE_FILM:
-        try {
+    try {
+      switch (actionType) {
+        case UserAction.UPDATE_FILM:
           await this.#filmsModel.updateFilm(updateType, update);
-        } catch(err) {
-          this.#filmsPresenter.get(update.id).setAborting(actionType);
-        }
-        break;
-      case UserAction.ADD_COMMENT:
-        this.#filmsPresenter.get(update.film.id).setSaving();
-        try {
+          break;
+        case UserAction.ADD_COMMENT:
+          if (isAllFilms) {
+            this.#filmsPresenter.get(update.film.id).setSaving();
+          }
+          if (isTopRated) {
+            this.#filmsTopRatedPresenter.get(update.film.id).setSaving();
+          }
+          if (isMostCommented) {
+            this.#filmsMostCommentedPresenter.get(update.film.id).setSaving();
+          }
           await this.#commentsModel.addComment(updateType, update);
-        } catch(err) {
-          this.#filmsPresenter.get(update.film.id).setAborting(actionType);
-        }
-        break;
-      case UserAction.DELETE_COMMENT:
-        this.#filmsPresenter.get(update.film.id).setDeleting();
-        try {
+          break;
+        case UserAction.DELETE_COMMENT:
+          if (isAllFilms) {
+            this.#filmsPresenter.get(update.film.id).setDeleting();
+          }
+          if (isTopRated) {
+            this.#filmsTopRatedPresenter.get(update.film.id).setDeleting();
+          }
+          if (isMostCommented) {
+            this.#filmsMostCommentedPresenter.get(update.film.id).setDeleting();
+          }
           await this.#commentsModel.deleteComment(updateType, update);
-        } catch(err) {
-          this.#filmsPresenter.get(update.film.id).setAborting(actionType, update.commentId);
-        }
-        break;
-    }
-    this.#uiBlocker.unblock();
-  };
-
-  #handleViewActionTopRated = async (actionType, updateType, update) => {
-    this.#uiBlocker.block();
-    switch (actionType) {
-      case UserAction.UPDATE_FILM:
-        try {
-          await this.#filmsModel.updateFilm(updateType, update);
-        } catch(err) {
-          this.#filmsTopRatedPresenter.get(update.id).setAborting(actionType);
-        }
-        break;
-      case UserAction.ADD_COMMENT:
-        this.#filmsTopRatedPresenter.get(update.film.id).setSaving();
-        try {
-          await this.#commentsModel.addComment(updateType, update);
-        } catch(err) {
-          this.#filmsTopRatedPresenter.get(update.film.id).setAborting(actionType);
-        }
-        break;
-      case UserAction.DELETE_COMMENT:
-        this.#filmsTopRatedPresenter.get(update.film.id).setDeleting();
-        try {
-          await this.#commentsModel.deleteComment(updateType, update);
-        } catch(err) {
-          this.#filmsTopRatedPresenter.get(update.film.id).setAborting(actionType, update.commentId);
-        }
-        break;
-    }
-    this.#uiBlocker.unblock();
-  };
-
-  #handleViewActionMostCommented = async (actionType, updateType, update) => {
-    this.#uiBlocker.block();
-    switch (actionType) {
-      case UserAction.UPDATE_FILM:
-        try {
-          await this.#filmsModel.updateFilm(updateType, update);
-        } catch(err) {
-          this.#filmsMostCommentedPresenter.get(update.id).setAborting(actionType);
-        }
-        break;
-      case UserAction.ADD_COMMENT:
-        this.#filmsMostCommentedPresenter.get(update.film.id).setSaving();
-        try {
-          await this.#commentsModel.addComment(updateType, update);
-        } catch(err) {
-          this.#filmsMostCommentedPresenter.get(update.film.id).setAborting(actionType);
-        }
-        break;
-      case UserAction.DELETE_COMMENT:
-        this.#filmsMostCommentedPresenter.get(update.film.id).setDeleting();
-        try {
-          await this.#commentsModel.deleteComment(updateType, update);
-        } catch(err) {
-          this.#filmsMostCommentedPresenter.get(update.film.id).setAborting(actionType, update.commentId);
-        }
-        break;
+          break;
+      }
+    } catch(err) {
+      if (isAllFilms) {
+        this.#filmsPresenter.get(update.film.id).setAborting(actionType, update.commentId);
+      }
+      if(isTopRated) {
+        this.#filmsTopRatedPresenter.get(update.film.id).setAborting(actionType, update.commentId);
+      }
+      if(isMostCommented) {
+        this.#filmsMostCommentedPresenter.get(update.film.id).setAborting(actionType, update.commentId);
+      }
     }
     this.#uiBlocker.unblock();
   };
@@ -247,7 +206,7 @@ export default class BoardPresenter {
     const topRatedPresenter = new FilmPrsenter({
       filmListContainer: this.#sectionTopRatedComponent.element.querySelector('.films-list__container'),
       bodyElement: this.#bodyElement,
-      onDataChange: this.#handleViewActionTopRated,
+      onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange,
     });
 
@@ -259,7 +218,7 @@ export default class BoardPresenter {
     const mostCommentedPresenter = new FilmPrsenter({
       filmListContainer: this.#sectionMostCommentedComponent.element.querySelector('.films-list__container'),
       bodyElement: this.#bodyElement,
-      onDataChange: this.#handleViewActionMostCommented,
+      onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange,
     });
     mostCommentedPresenter.init(film, this.#commentsModel);
