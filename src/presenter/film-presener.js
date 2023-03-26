@@ -1,7 +1,7 @@
 import {render, remove, replace} from '../framework/render.js';
 import FilmView from '../view/film-view.js';
 import FilmDetailsView from '../view/film-details-view.js';
-import {Mode, UserAction, UpdateType} from '../consts.js';
+import {Mode, UserAction, UpdateType, FilterType} from '../consts.js';
 
 export default class FilmPrsenter {
   #filmListContainer = null;
@@ -13,21 +13,21 @@ export default class FilmPrsenter {
   #filmDetailsComponent = null;
 
   #film = null;
-  #commentsModel = null;
+  #comments = null;
+  #filterType = null;
   #mode = Mode.DEFAULT;
 
-  constructor({filmListContainer, bodyElement, onDataChange, onModeChange}) {
+  constructor({filmListContainer, filterType, bodyElement, onDataChange, onModeChange}) {
     this.#filmListContainer = filmListContainer;
+    this.#filterType = filterType;
     this.#bodyElement = bodyElement;
     this.#handleDataChange = onDataChange;
     this.#handleModeChange = onModeChange;
   }
 
-  async init(film, commentsModel) {
+  init(film, comments) {
     this.#film = film;
-    this.#commentsModel = commentsModel;
-
-    const comments = await this.#commentsModel.getComments(this.#film.id);
+    this.#comments = comments;
 
     const prevFilmComponent = this.#filmComponent;
     const prevFilmDetailsComponent = this.#filmDetailsComponent;
@@ -35,18 +35,14 @@ export default class FilmPrsenter {
     this.#filmComponent = new FilmView({
       film: this.#film,
       onDetailsClick: this.#handleDetailsClick,
-      onWatchlistClick: this.#handleWatchlistClick,
-      onWatchedClick: this.#handleWatchedClick,
-      onFavoriteClick: this.#handleFavoriteClick,
+      onControlsClick:this.#handleControlsClick,
     });
 
     this.#filmDetailsComponent = new FilmDetailsView({
       film: this.#film,
-      comments: comments,
+      comments: this.#comments,
       onDetailsClose: this.#handleDetailsClose,
-      onWatchlistClick: this.#handleWatchlistClick,
-      onWatchedClick: this.#handleWatchedClick,
-      onFavoriteClick: this.#handleFavoriteClick,
+      onControlsClick:this.#handleControlsClick,
       onDeleteClick: this.#handleDeleteClick,
       onCommentAdd: this.#handleCommentAdd,
     });
@@ -62,6 +58,11 @@ export default class FilmPrsenter {
 
     if (this.#mode === Mode.DETAILS) {
       replace(this.#filmDetailsComponent, prevFilmDetailsComponent);
+      replace(this.#filmComponent, prevFilmComponent);
+
+      const scrollPosition = prevFilmDetailsComponent.getScrollPosition();
+
+      this.#filmDetailsComponent.setScrollPosition(scrollPosition);
       return;
     }
 
@@ -71,7 +72,6 @@ export default class FilmPrsenter {
 
   destroy() {
     remove(this.#filmComponent);
-    remove(this.#filmDetailsComponent);
   }
 
   resetView() {
@@ -80,11 +80,53 @@ export default class FilmPrsenter {
     }
   }
 
-  #replaceCardToForm() {
+  setDeleting() {
+    if (this.#mode === Mode.DETAILS) {
+      this.#filmDetailsComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
+  }
+
+  setSaving() {
+    if (this.#mode === Mode.DETAILS) {
+      this.#filmDetailsComponent.updateElement({
+        isDisabled: true,
+      });
+    }
+  }
+
+  setAborting(actionType, commentId) {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#filmComponent.shake();
+      return;
+    }
+
+    switch (actionType) {
+      case UserAction.UPDATE_FILM:
+        this.#filmDetailsComponent.shakeControls();
+        break;
+      case UserAction.DELETE_COMMENT:
+        this.#filmDetailsComponent.shakeComment(commentId);
+        break;
+      case UserAction.ADD_COMMENT:
+        this.#filmDetailsComponent.shakeForm();
+        break;
+    }
+  }
+
+  async #replaceCardToForm() {
+    if (!this.#comments.length){
+      const commentsForFilm = await this.#comments.getComments(this.#film.id);
+      this.#filmDetailsComponent.setComments(commentsForFilm);
+    }
+
     this.#bodyElement.append(this.#filmDetailsComponent.element);
     document.addEventListener('keydown', this.#escKeyDownHandler);
     this.#handleModeChange();
     this.#mode = Mode.DETAILS;
+    this.#filmDetailsComponent.resetForm();
   }
 
   #replaceFormToCard() {
@@ -104,42 +146,23 @@ export default class FilmPrsenter {
     this.#replaceCardToForm();
   };
 
-  #handleWatchlistClick = () => {
-    console.log(1)
-    this.#handleDataChange(
-      UserAction.UPDATE_FILM,
-      UpdateType.PATCH,
-      {
-        ...this.#film,
-        userDetails: {
-          ...this.#film.userDetails,
-          watchlist: !this.#film.userDetails.watchlist,
-        }
-      });
-  };
+  #handleControlsClick = (control) => {
+    let updateType;
+    if (this.#filterType === FilterType.ALL || !this.#filterType){
+      updateType = UpdateType.PATCH;
+    } else {
+      updateType = UpdateType.MINOR;
+    }
 
-  #handleWatchedClick = () => {
     this.#handleDataChange(
       UserAction.UPDATE_FILM,
-      UpdateType.PATCH,
+      updateType,
       {
-        ...this.#film,
-        userDetails: {
-          ...this.#film.userDetails,
-          alreadyWatched: !this.#film.userDetails.alreadyWatched,
-        }
-      });
-  };
-
-  #handleFavoriteClick = () => {
-    this.#handleDataChange(
-      UserAction.UPDATE_FILM,
-      UpdateType.PATCH,
-      {
-        ...this.#film,
-        userDetails: {
-          ...this.#film.userDetails,
-          favorite: !this.#film.userDetails.favorite,
+        film: {...this.#film,
+          userDetails: {
+            ...this.#film.userDetails,
+            [control.id]: !this.#film.userDetails[control.id],
+          }
         }
       });
   };
@@ -148,24 +171,33 @@ export default class FilmPrsenter {
     this.#handleDataChange(
       UserAction.UPDATE_TASK,
       UpdateType.MINOR,
-      update,
+      {
+        film: update,
+      }
     );
     this.#replaceFormToCard();
   };
 
-  #handleDeleteClick = (comment) => {
+  #handleDeleteClick = (commentId) => {
     this.#handleDataChange(
       UserAction.DELETE_COMMENT,
-      UpdateType.MINOR,
-      comment,
+      UpdateType.PATCH,
+      {
+        commentId,
+        film: this.#film,
+      }
     );
   };
 
-  #handleCommentAdd = (commentToAdd) => {
+  #handleCommentAdd = (comment) => {
+    const film = this.#film;
     this.#handleDataChange(
       UserAction.ADD_COMMENT,
-      UpdateType.MINOR,
-      commentToAdd,
+      UpdateType.PATCH,
+      {
+        comment,
+        film
+      },
     );
   };
 }

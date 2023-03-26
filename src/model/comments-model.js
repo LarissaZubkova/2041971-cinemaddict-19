@@ -1,4 +1,5 @@
 import Observable from '../framework/observable.js';
+import {ErrorMessage} from '../consts.js';
 
 export default class CommentsModel extends Observable {
   #commentsApiService = null;
@@ -20,22 +21,25 @@ export default class CommentsModel extends Observable {
 
   async addComment(updateType, update) {
     try {
-      const newComment = await this.#commentsApiService.addComment(update);
-      this.#comments = [
-        update,
-        ...this.#comments,
-      ];
-      this._notify(updateType, newComment);
+      const newData = await this.#commentsApiService.addComment(update.film.id, update.comment);
+      const film = {
+        ...update.film,
+        comments: newData.movie.comments,
+      };
+      this._notify(updateType, film);
     } catch(err) {
-      throw new Error('Can\'t add comment');
+      throw new Error(ErrorMessage.ADD_COMMENT);
     }
   }
 
   deleteComment(updateType, update) {
-    return this.#commentsApiService.deleteComment(update)
+    return this.#commentsApiService.deleteComment(update.commentId)
       .then(() => {
-        this.#comments = this.#comments.filter((comment) => comment.id !== update);
-        this._notify(updateType, this.#comments);
+        const film = {
+          ...update.film,
+          comments: update.film.comments.filter((comment) => comment !== update.commentId),
+        };
+        this._notify(updateType, film);
       });
   }
 }

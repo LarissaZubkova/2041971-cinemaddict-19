@@ -1,5 +1,5 @@
 import Observable from '../framework/observable.js';
-import {UpdateType} from '../consts.js';
+import {UpdateType, ErrorMessage} from '../consts.js';
 
 export default class FilmsModel extends Observable {
   #filmsApiService = null;
@@ -25,23 +25,23 @@ export default class FilmsModel extends Observable {
   }
 
   async updateFilm(updateType, update) {
-    const index = this.#films.findIndex((film) => film.id === update.id);
+    const index = this.#films.findIndex((film) => film.id === update.film.id);
 
     if (index === -1) {
-      throw new Error('Can\'t update unexisting task');
+      throw new Error(ErrorMessage.UPDATE_FILM);
     }
 
     try {
-      const response = await this.#filmsApiService.updateFilm(update);
+      const response = await this.#filmsApiService.updateFilm(update.film);
       const updatedFilm = this.#adaptToClient(response);
       this.#films = [
         ...this.#films.slice(0, index),
-        update,
+        update.film,
         ...this.#films.slice(index + 1),
       ];
       this._notify(updateType, updatedFilm);
     } catch(err) {
-      throw new Error('Can\'t update film');
+      throw new Error(ErrorMessage.UPDATE_FILM);
     }
   }
 
@@ -60,7 +60,7 @@ export default class FilmsModel extends Observable {
       },
       userDetails: {
         ...film['user_details'],
-        alreadyWatched: film['user_details']['already_watched'],
+        watched: film['user_details']['already_watched'],
         watchingDate: film['user_details']['watching_date']
       }
     };

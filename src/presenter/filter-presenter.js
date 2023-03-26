@@ -1,5 +1,6 @@
 import {render, replace, remove} from '../framework/render.js';
 import FilterView from '../view/filter-view.js';
+import ProfileView from '../view/profile-view.js';
 import {filter} from '../utils/filter.js';
 import {FilterType, UpdateType} from '../consts.js';
 
@@ -9,13 +10,16 @@ export default class FilterPresenter {
   #filmsModel = null;
 
   #filterComponent = null;
+  #profileComponent = null;
+  #profileContainer = null;
 
-  constructor({filterContainer, filterModel, filmsModel}) {
+  constructor({filterContainer, filterModel, filmsModel, profileContainer}) {
     this.#filterContainer = filterContainer;
     this.#filterModel = filterModel;
     this.#filmsModel = filmsModel;
+    this.#profileContainer = profileContainer;
 
-    this.#filterModel.addObserver(this.#handleModelEvent);
+    this.#filmsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
@@ -25,22 +29,22 @@ export default class FilterPresenter {
     return [
       {
         type: FilterType.ALL,
-        name: 'All movies',
+        name: FilterType.ALL,
         count: filter[FilterType.ALL](films).length,
       },
       {
         type: FilterType.WATCHLIST,
-        name: 'Watchlist',
+        name: FilterType.WATCHLIST,
         count: filter[FilterType.WATCHLIST](films).length,
       },
       {
         type: FilterType.HISTORY,
-        name: 'History',
+        name: FilterType.HISTORY,
         count: filter[FilterType.HISTORY](films).length,
       },
       {
         type: FilterType.FAVORITES,
-        name: 'Favorites',
+        name: FilterType.FAVORITES,
         count: filter[FilterType.FAVORITES](films).length,
       },
     ];
@@ -48,21 +52,33 @@ export default class FilterPresenter {
 
   init() {
     const filters = this.filters;
+
     const prevFilterComponent = this.#filterComponent;
+    const prevProfileComponent = this.#profileComponent;
+
+    const watchedFilms = filters.find((film) => film.type === FilterType.HISTORY).count;
+
+    this.#profileComponent = new ProfileView({watchedFilms});
 
     this.#filterComponent = new FilterView({
       filters,
       currentFilterType: this.#filterModel.filter,
-      onFilterTypeChange: this.#handleFilterTypeChange
+      onFilterTypeChange: this.#handleFilterTypeChange,
     });
 
     if (prevFilterComponent === null) {
       render(this.#filterComponent, this.#filterContainer);
-      return;
+    } else {
+      replace(this.#filterComponent, prevFilterComponent);
+      remove(prevFilterComponent);
     }
 
-    replace(this.#filterComponent, prevFilterComponent);
-    remove(prevFilterComponent);
+    if (prevProfileComponent === null) {
+      render(this.#profileComponent, this.#profileContainer);
+    } else {
+      replace(this.#profileComponent, prevProfileComponent);
+      remove(prevProfileComponent);
+    }
   }
 
   #handleModelEvent = () => {

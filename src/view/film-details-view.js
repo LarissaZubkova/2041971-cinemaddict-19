@@ -29,8 +29,8 @@ function getCommentDate(date) {
     : dayjs(date).fromNow();
 }
 
-function createCommentsTemplate(commentsModel) {
-  return commentsModel.map((commentForFilm) => {
+function createCommentsTemplate(commentsModel, isDisabled, isDeleting) {
+  return commentsModel.length ? commentsModel.map((commentForFilm) => {
     const {emotion, comment, author, date} = commentForFilm;
 
     return `<li class="film-details__comment">
@@ -42,16 +42,16 @@ function createCommentsTemplate(commentsModel) {
         <p class="film-details__comment-info">
           <span class="film-details__comment-author">${author}</span>
           <span class="film-details__comment-day">${getCommentDate(date)}</span>
-          <button class="film-details__comment-delete" id="${commentForFilm.id}">Delete</button>
+          <button class="film-details__comment-delete" id="${commentForFilm.id}" ${isDisabled ? 'disabled' : ''}>${isDeleting ? 'Deleting' : 'Delete'}</button>
     </p>
   </div>
 </li>`;
-  }).join(' ');
+  }).join(' ') : '';
 }
 
-function createEmotionTemplate(checkedEmoji, emotions) {
+function createEmotionTemplate(checkedEmoji, emotions, isDisabled) {
   return emotions.map((emotion) => `
-    <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emotion}" value="${emotion}" ${checkedEmoji === emotion ? 'checked' : ''} >
+    <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emotion}" value="${emotion}" ${checkedEmoji === emotion ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
       <label class="film-details__emoji-label" for="emoji-${emotion}">
           <img id="${emotion}" src="./images/emoji/${emotion}.png" width="30" height="30" alt="emoji">
       </label>
@@ -59,6 +59,7 @@ function createEmotionTemplate(checkedEmoji, emotions) {
 }
 
 function createFilmDetailsTemplate(film, commentsModel, addedComment) {
+  const {userComment, checkedEmoji, isDisabled, isDeleting} = addedComment;
   const {comments, filmInfo, userDetails} = film;
   const {
     poster,
@@ -74,7 +75,7 @@ function createFilmDetailsTemplate(film, commentsModel, addedComment) {
     genre,
     description
   } = filmInfo;
-  const {watchlist, alreadyWatched, favorite} = userDetails;
+  const {watchlist, watched, favorite} = userDetails;
 
   return `<section class="film-details">
   <div class="film-details__inner">
@@ -140,9 +141,9 @@ function createFilmDetailsTemplate(film, commentsModel, addedComment) {
       </div>
 
       <section class="film-details__controls">
-        <button type="button" class="film-details__control-button film-details__control-button--watchlist ${getControlsClassName(watchlist)}" id="watchlist" name="watchlist">Add to watchlist</button>
-        <button type="button" class="film-details__control-button film-details__control-button--watched ${getControlsClassName(alreadyWatched)}" id="watched" name="watched">Already watched</button>
-        <button type="button" class="film-details__control-button film-details__control-button--favorite ${getControlsClassName(favorite)}" id="favorite" name="favorite">Add to favorites</button>
+        <button type="button" class="film-details__control-button film-details__control-button--watchlist ${getControlsClassName(watchlist)}" id="watchlist" name="watchlist" ${isDisabled ? 'disabled' : ''}>Add to watchlist</button>
+        <button type="button" class="film-details__control-button film-details__control-button--watched ${getControlsClassName(watched)}" id="watched" name="watched" ${isDisabled ? 'disabled' : ''}>Already watched</button>
+        <button type="button" class="film-details__control-button film-details__control-button--favorite ${getControlsClassName(favorite)}" id="favorite" name="favorite" ${isDisabled ? 'disabled' : ''}>Add to favorites</button>
       </section>
     </div>
 
@@ -151,20 +152,20 @@ function createFilmDetailsTemplate(film, commentsModel, addedComment) {
         <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
         <ul class="film-details__comments-list">
-        ${createCommentsTemplate(commentsModel)}
+        ${createCommentsTemplate(commentsModel, isDisabled, isDeleting)}
         </ul>
 
         <form class="film-details__new-comment" action="" method="get">
           <div class="film-details__add-emoji-label">
-            ${addedComment.checkedEmoji ? `<img src="./images/emoji/${addedComment.checkedEmoji}.png" width="55" height="55" alt="emoji-${addedComment.checkedEmoji}">` : ''}
+            ${checkedEmoji ? `<img src="./images/emoji/${checkedEmoji}.png" width="55" height="55" alt="emoji-${checkedEmoji}">` : ''}
           </div>
 
           <label class="film-details__comment-label">
-            <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
+            <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment" ${isDisabled ? 'disabled' : ''}>${userComment ? userComment : ''}</textarea>
           </label>
 
           <div class="film-details__emoji-list">
-            ${createEmotionTemplate(addedComment.checkedEmoji, EMOTIONS)}
+            ${createEmotionTemplate(checkedEmoji, EMOTIONS, isDisabled)}
           </div>
         </form>
       </section>
@@ -179,26 +180,18 @@ export default class FilmDetailsView extends AbstractStatefulView{
   #handleDetailsClose = null;
   #handleDeleteClick = null;
   #handleAddCommentSubmit = null;
-  #handleWatchlistClick = null;
-  #handleWatchedClick = null;
-  #handleFavoriteClick = null;
+  #handleControlsClick = null;
 
-  constructor({film, comments, onDetailsClose, onWatchlistClick, onWatchedClick, onFavoriteClick, onDeleteClick, onCommentAdd}) {
+  constructor({film, comments, onDetailsClose, onControlsClick, onDeleteClick, onCommentAdd}) {
     super();
     this.#film = film;
     this.#comments = comments;
-    this._setState(FilmDetailsView.parseCommentsToState());
+    this._setState(FilmDetailsView.parseCommentToState());
     this.#handleDetailsClose = onDetailsClose;
-    this.#handleWatchlistClick = onWatchlistClick;
-    this.#handleWatchedClick = onWatchedClick;
-    this.#handleFavoriteClick = onFavoriteClick;
+    this.#handleControlsClick = onControlsClick;
     this.#handleDeleteClick = onDeleteClick;
     this.#handleAddCommentSubmit = onCommentAdd;
-    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#detailsCloseHandler);
-    this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchlistClickHandler);
-    this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#watchedClickHandler);
-    this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#favoriteClickHandler);
-    this.element.querySelectorAll('.film-details__comment-delete').forEach((deleteButton) => deleteButton.addEventListener('click', this.#commentDeleteClickHandler));
+
     this._restoreHandlers();
   }
 
@@ -207,10 +200,52 @@ export default class FilmDetailsView extends AbstractStatefulView{
   }
 
   _restoreHandlers() {
+    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#detailsCloseHandler);
+    this.element.querySelector('.film-details__controls').addEventListener('click', this.#controlsClickHandler);
+    this.element.querySelectorAll('.film-details__comment-delete').forEach((deleteButton) => deleteButton.addEventListener('click', this.#commentDeleteClickHandler));
     this.element.querySelector('.film-details__emoji-list').addEventListener('click', this.#emojiClickHandler);
     this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#commentInputHandler);
     this.element.querySelector('.film-details__comment-input').addEventListener('keydown', this.#addCommentKeydownHandler);
+    this.element.addEventListener('scroll', this.#scrollPositionHandler);
   }
+
+  setComments(commentsForFilm) {
+    this.#comments = commentsForFilm;
+  }
+
+  getScrollPosition() {
+    return this._state.scrollPosition;
+  }
+
+  setScrollPosition(scrollPosition) {
+    this.element.scrollTo(0, scrollPosition);
+  }
+
+  #scrollPositionHandler = () => {
+    this._setState({scrollPosition: this.element.scrollTop});
+  };
+
+  shakeControls = () => this.shake.call({element: this.element.querySelector('.film-details__controls')});
+
+  shakeComment = (id) => {
+    const button = this.element.querySelector(`.film-details__comment-delete[id='${id}']`);
+    const comment = button.closest('.film-details__comment');
+
+    this.shake.call({element: comment}, () => {
+      this.updateElement({
+        isDisabled: false,
+        isDeleting: false,
+      });
+    });
+  };
+
+  shakeForm = () => {
+    this.shake.call({element: document.querySelector('form')}, () => {
+      this._setState({
+        isDisabled: false
+      });
+    });
+  };
 
   #detailsCloseHandler = (evt) => {
     evt.preventDefault();
@@ -218,28 +253,23 @@ export default class FilmDetailsView extends AbstractStatefulView{
     document.querySelector('body').classList.remove('hide-overflow');
   };
 
-  #watchlistClickHandler = (evt) => {
+  #controlsClickHandler = (evt) => {
     evt.preventDefault();
-    this.#handleWatchlistClick();
-  };
 
-  #watchedClickHandler = (evt) => {
-    evt.preventDefault();
-    this.#handleWatchedClick();
-  };
+    if (!evt.target.classList.contains('film-details__control-button')) {
+      return;
+    }
 
-  #favoriteClickHandler = (evt) => {
-    evt.preventDefault();
-    this.#handleFavoriteClick();
+    this.#handleControlsClick(evt.target);
   };
 
   #emojiClickHandler = (evt) => {
-    const currentScrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this.updateElement({
       checkedEmoji: evt.target.id,
+      scrollPosition: this.element.scrollTop,
     });
-    this.element.scroll(0, currentScrollPosition);
+    this.element.scrollTo(0, this._state.scrollPosition);
   };
 
   #commentInputHandler = (evt) => {
@@ -250,7 +280,11 @@ export default class FilmDetailsView extends AbstractStatefulView{
 
   #commentDeleteClickHandler = (evt) => {
     evt.preventDefault();
+    this.updateElement({
+      scrollPosition: this.element.scrollTop
+    });
     this.#handleDeleteClick(evt.target.id);
+    this.element.scrollTo(0, this._state.scrollPosition);
   };
 
   #addCommentKeydownHandler = (evt) => {
@@ -259,23 +293,27 @@ export default class FilmDetailsView extends AbstractStatefulView{
         comment: this._state.userComment,
         emotion: this._state.checkedEmoji
       };
+      this.updateElement({
+        scrollPosition: this.element.scrollTop
+      });
       this.#handleAddCommentSubmit(commentToAdd);
+      this.element.scrollTo(0, this._state.scrollPosition);
     }
   };
 
-  static parseCommentsToState() {
+  resetForm() {
+    this.updateElement({
+      userComment: '',
+      checkedEmoji: '',
+    });
+  }
+
+  static parseCommentToState() {
     return {
       checkedEmoji: null,
       userComment: null,
+      isDisabled: false,
+      isDeleting: false,
     };
-  }
-
-  static parseStateToFilm(state) {
-    const comment = {...state};
-
-    delete comment.checkedEmoji;
-    delete comment.userComment;
-
-    return comment;
   }
 }

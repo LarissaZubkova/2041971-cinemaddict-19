@@ -10,6 +10,7 @@ const NoFilmsTextType = {
 
 function createEmptyListTemplate(filterType) {
   const noFilmTextValue = NoFilmsTextType[filterType];
+
   return `<section class="films-list">
     <h2 class="films-list__title">${noFilmTextValue}</h2>
   </section>`;

@@ -14,7 +14,6 @@ export default class CommentsApiService extends ApiService {
       body: JSON.stringify(comment),
       headers: new Headers({'Content-Type': 'application/json'}),
     });
-
     const parsedResponse = await ApiService.parseResponse(response);
 
     return parsedResponse;

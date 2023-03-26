@@ -16,7 +16,7 @@ function getDescription(description) {
 function createFilmTemplate(film) {
   const {filmInfo, comments, userDetails} = film;
   const {title, totalRating, release, genre, poster, description, duration} = filmInfo;
-  const {watchlist, alreadyWatched, favorite} = userDetails;
+  const {watchlist, watched, favorite} = userDetails;
 
   const year = humanizeFilmDate(release.date, DateFormat.RELEASE_FORMAT);
 
@@ -34,9 +34,9 @@ function createFilmTemplate(film) {
     <span class="film-card__comments">${comments.length} comments</span>
   </a>
   <div class="film-card__controls">
-    <button class="film-card__controls-item film-card__controls-item--add-to-watchlist ${getControlsClassName(watchlist)}" type="button">Add to watchlist</button>
-    <button class="film-card__controls-item film-card__controls-item--mark-as-watched ${getControlsClassName(alreadyWatched)}" type="button">Mark as watched</button>
-    <button class="film-card__controls-item film-card__controls-item--favorite ${getControlsClassName(favorite)}" type="button">Mark as favorite</button>
+    <button class="film-card__controls-item film-card__controls-item--add-to-watchlist ${getControlsClassName(watchlist)}" type="button" id="watchlist">Add to watchlist</button>
+    <button class="film-card__controls-item film-card__controls-item--mark-as-watched ${getControlsClassName(watched)}" type="button" id="watched">Mark as watched</button>
+    <button class="film-card__controls-item film-card__controls-item--favorite ${getControlsClassName(favorite)}" type="button" id="favorite">Mark as favorite</button>
   </div>
 </article>`;
 }
@@ -44,22 +44,16 @@ function createFilmTemplate(film) {
 export default class FilmView extends AbstractView {
   #film = null;
   #handleDetailsClick = null;
-  #handleWatchlistClick = null;
-  #handleWatchedClick = null;
-  #handleFavoriteClick = null;
+  #handleControlsClick = null;
 
-  constructor({film, onDetailsClick, onWatchlistClick, onWatchedClick, onFavoriteClick}) {
+  constructor({film, onDetailsClick, onControlsClick}) {
     super();
     this.#film = film;
     this.#handleDetailsClick = onDetailsClick;
-    this.#handleWatchlistClick = onWatchlistClick;
-    this.#handleWatchedClick = onWatchedClick;
-    this.#handleFavoriteClick = onFavoriteClick;
+    this.#handleControlsClick = onControlsClick;
 
     this.element.querySelector('.film-card__link').addEventListener('click', this.#detailsClickHandler);
-    this.element.querySelector('.film-card__controls-item--add-to-watchlist').addEventListener('click', this.#watchlistClickHandler);
-    this.element.querySelector('.film-card__controls-item--mark-as-watched').addEventListener('click', this.#watchedClickHandler);
-    this.element.querySelector('.film-card__controls-item--favorite').addEventListener('click', this.#favoriteClickHandler);
+    this.element.querySelector('.film-card__controls').addEventListener('click', this.#controlsClickHandler);
   }
 
   get template() {
@@ -72,18 +66,12 @@ export default class FilmView extends AbstractView {
     document.querySelector('body').classList.add('hide-overflow');
   };
 
-  #watchlistClickHandler = (evt) => {
+  #controlsClickHandler = (evt) => {
     evt.preventDefault();
-    this.#handleWatchlistClick();
-  };
 
-  #watchedClickHandler = (evt) => {
-    evt.preventDefault();
-    this.#handleWatchedClick();
-  };
-
-  #favoriteClickHandler = (evt) => {
-    evt.preventDefault();
-    this.#handleFavoriteClick();
+    if (!evt.target.classList.contains('film-card__controls-item')) {
+      return;
+    }
+    this.#handleControlsClick(evt.target);
   };
 }

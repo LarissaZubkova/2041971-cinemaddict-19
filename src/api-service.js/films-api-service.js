@@ -1,7 +1,6 @@
 import ApiService from '../framework/api-service.js';
 import {Method} from '../consts.js';
 
-
 export default class FilmsApiService extends ApiService {
   get films() {
     return this._load({url: 'movies'})
@@ -15,7 +14,6 @@ export default class FilmsApiService extends ApiService {
       body: JSON.stringify(this.#adaptToServer(film)),
       headers: new Headers({'Content-Type': 'application/json'}),
     });
-
     const parsedResponse = await ApiService.parseResponse(response);
 
     return parsedResponse;
@@ -31,13 +29,13 @@ export default class FilmsApiService extends ApiService {
         'total_rating': film.filmInfo.totalRating,
         'release': {
           ...film.filmInfo.release,
-          'release_country': film.filmInfo.release.releaseCountry
+          'release_country': film.filmInfo.release.releaseCountry,
         }
       },
       'user_details': {
         ...film.userDetails,
-        'already_watched': film.userDetails.alreadyWatched,
-        'watching_date': film.userDetails.watchingDate
+        'already_watched': film.userDetails.watched,
+        'watching_date': film.userDetails.watchingDate,
       }
     };
 
@@ -47,7 +45,7 @@ export default class FilmsApiService extends ApiService {
     delete adaptedFilm['film_info'].totalRating;
     delete adaptedFilm['film_info'].release.releaseCountry;
     delete adaptedFilm.userDetails;
-    delete adaptedFilm['user_details'].alreadyWatched;
+    delete adaptedFilm['user_details'].watched;
     delete adaptedFilm['user_details'].watchingDate;
 
     return adaptedFilm;
