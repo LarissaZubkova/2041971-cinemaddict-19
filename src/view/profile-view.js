@@ -1,13 +1,14 @@
 import AbstractView from '../framework/view/abstract-view.js';
+import {WatchedFilmsProfile} from '../consts.js';
 
 const getRating = (watchedFilms) => {
-  if (watchedFilms > 0 && watchedFilms <= 10) {
+  if (watchedFilms > WatchedFilmsProfile.NOVICE && watchedFilms <= WatchedFilmsProfile.FAN) {
     return 'novice';
   }
-  if (watchedFilms > 10 && watchedFilms <= 20) {
+  if (watchedFilms > WatchedFilmsProfile.FAN && watchedFilms <= WatchedFilmsProfile.MOVIE_BUFF) {
     return 'fan';
   }
-  if (watchedFilms > 20) {
+  if (watchedFilms > WatchedFilmsProfile.MOVIE_BUFF) {
     return 'Movie buff';
   }
 };

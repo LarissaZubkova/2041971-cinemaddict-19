@@ -139,17 +139,19 @@ export default class BoardPresenter {
     this.#uiBlocker.unblock();
   };
 
-  #handleModelEvent = (updateType, data) => {
+  #handleModelEvent = async (updateType, data) => {
+    let commentsForFilm;
     switch (updateType) {
       case UpdateType.PATCH:
+        commentsForFilm = await this.#commentsModel.getComments(data.id);
         if (this.#filmsPresenter.get(data.id)) {
-          this.#filmsPresenter.get(data.id).init(data, this.#commentsModel);
+          this.#filmsPresenter.get(data.id).init(data, commentsForFilm);
         }
         if (this.#filmsTopRatedPresenter.get(data.id)){
-          this.#filmsTopRatedPresenter.get(data.id).init(data, this.#commentsModel);
+          this.#filmsTopRatedPresenter.get(data.id).init(data, commentsForFilm);
         }
         if (this.#filmsMostCommentedPresenter.get(data.id)){
-          this.#filmsMostCommentedPresenter.get(data.id).init(data, this.#commentsModel);
+          this.#filmsMostCommentedPresenter.get(data.id).init(data, commentsForFilm);
         }
         break;
       case UpdateType.MINOR:
@@ -166,7 +168,6 @@ export default class BoardPresenter {
         this.#renderBoard();
         break;
     }
-
   };
 
   #handleSortTypeChange = (sortType) => {
@@ -176,7 +177,7 @@ export default class BoardPresenter {
 
     this.#currentSortType = sortType;
     this.#renderedFilmCount = FILM_COUNT_PER_STEP;
-    this.#clearBoard({resetRenderedTaskCount: true});
+    this.#clearBoard({resetRenderedFilmCount: true});
     this.#renderBoard();
   };
 
@@ -221,6 +222,7 @@ export default class BoardPresenter {
       onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange,
     });
+
     mostCommentedPresenter.init(film, this.#commentsModel);
     this.#filmsMostCommentedPresenter.set(film.id, mostCommentedPresenter);
   }
@@ -230,13 +232,33 @@ export default class BoardPresenter {
   }
 
   #renderTopRatedFilms() {
-    const topRatedFilms = getTopRatedFilms(this.films);
-    topRatedFilms.forEach((film) => this.#renderTopRatedFilm(film));
+    const topRatedFilms = getTopRatedFilms(this.#filmsModel.films);
+    const isRating = topRatedFilms.every((film) => film.filmInfo.totalRating);
+
+    if (isRating) {
+      render(this.#sectionTopRatedComponent, this.#boardComponent.element);
+    }
+
+    topRatedFilms.forEach((film) => {
+      if (film.filmInfo.totalRating) {
+        this.#renderTopRatedFilm(film);
+      }
+    });
   }
 
   #renderMostCommentedFilms() {
-    const mostCommentedFilms = getMostCommentedFilms(this.films);
-    mostCommentedFilms.forEach((film) => this.#renderMostCommentedFilm(film));
+    const mostCommentedFilms = getMostCommentedFilms(this.#filmsModel.films);
+    const isCommentsEmpty = mostCommentedFilms.every((film) => film.comments.length);
+
+    if (isCommentsEmpty) {
+      render(this.#sectionMostCommentedComponent, this.#boardComponent.element);
+    }
+
+    mostCommentedFilms.forEach((film) => {
+      if (film.comments.length) {
+        this.#renderMostCommentedFilm(film);
+      }
+    });
   }
 
   #renderLoading() {
@@ -255,6 +277,7 @@ export default class BoardPresenter {
     this.#noFilmComponent = new EmptyListView({
       filterType: this.#filterType
     });
+
     render(this.#noFilmComponent, this.#boardComponent.element, RenderPosition.AFTERBEGIN);
   }
 
@@ -297,8 +320,6 @@ export default class BoardPresenter {
   #renderBoard() {
     render(this.#boardComponent, this.#boardContainer);
     render(this.#filmsListComponent, this.#boardComponent.element);
-    render(this.#sectionTopRatedComponent, this.#boardComponent.element);
-    render(this.#sectionMostCommentedComponent, this.#boardComponent.element);
 
     if (this.#isLoading) {
       this.#renderLoading();

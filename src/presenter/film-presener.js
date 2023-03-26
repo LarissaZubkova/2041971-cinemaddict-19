@@ -29,10 +29,8 @@ export default class FilmPrsenter {
     this.#film = film;
     this.#comments = comments;
 
-
     const prevFilmComponent = this.#filmComponent;
     const prevFilmDetailsComponent = this.#filmDetailsComponent;
-    //const commentsForFilm = await this.#comments.getComments(this.#film.id);
 
     this.#filmComponent = new FilmView({
       film: this.#film,
@@ -42,7 +40,7 @@ export default class FilmPrsenter {
 
     this.#filmDetailsComponent = new FilmDetailsView({
       film: this.#film,
-      comments: []/*[...commentsForFilm]*/,
+      comments: this.#comments,
       onDetailsClose: this.#handleDetailsClose,
       onControlsClick:this.#handleControlsClick,
       onDeleteClick: this.#handleDeleteClick,
@@ -61,7 +59,9 @@ export default class FilmPrsenter {
     if (this.#mode === Mode.DETAILS) {
       replace(this.#filmDetailsComponent, prevFilmDetailsComponent);
       replace(this.#filmComponent, prevFilmComponent);
+
       const scrollPosition = prevFilmDetailsComponent.getScrollPosition();
+
       this.#filmDetailsComponent.setScrollPosition(scrollPosition);
       return;
     }
@@ -117,8 +117,11 @@ export default class FilmPrsenter {
   }
 
   async #replaceCardToForm() {
-    const commentsForFilm = await this.#comments.getComments(this.#film.id);
-    this.#filmDetailsComponent.setComments(commentsForFilm);
+    if (!this.#comments.length){
+      const commentsForFilm = await this.#comments.getComments(this.#film.id);
+      this.#filmDetailsComponent.setComments(commentsForFilm);
+    }
+
     this.#bodyElement.append(this.#filmDetailsComponent.element);
     document.addEventListener('keydown', this.#escKeyDownHandler);
     this.#handleModeChange();

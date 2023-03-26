@@ -30,7 +30,7 @@ function getCommentDate(date) {
 }
 
 function createCommentsTemplate(commentsModel, isDisabled, isDeleting) {
-  return commentsModel.map((commentForFilm) => {
+  return commentsModel.length ? commentsModel.map((commentForFilm) => {
     const {emotion, comment, author, date} = commentForFilm;
 
     return `<li class="film-details__comment">
@@ -46,7 +46,7 @@ function createCommentsTemplate(commentsModel, isDisabled, isDeleting) {
     </p>
   </div>
 </li>`;
-  }).join(' ');
+  }).join(' ') : '';
 }
 
 function createEmotionTemplate(checkedEmoji, emotions, isDisabled) {
