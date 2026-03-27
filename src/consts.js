@@ -86,7 +86,7 @@ const ErrorMessage = {
 };
 
 const AUTHORIZATION = 'Basic hS2sfSff4wcj356hg';
-const END_POINT = 'https://19.ecmascript.pages.academy/cinemaddict';
+const END_POINT = 'https://19.ecmascript.htmlacademy.pro/cinemaddict';
 
 export {
   DateFormat,
